@@ -1,12 +1,17 @@
 {
-  "name": "{{name}}.js",
-  "repository": "https://github.com/{{username}}/{{name}}.js.git",
+  "name": "document.js",
+  "repository": "https://github.com/bnorton/document.js.git",
   "version": "0.1.0",
   "license": "MIT",
   "description": "",
   "keywords": [
   ],
   "dependencies": {
+    "progenitor.js": "*",
+    "extend": "*",
+    "json.mustache.js": "*",
+    "i": "*",
+    "mongodb": "2.*"
   },
   "devDependencies": {
     "minijasminenode2": "bnorton/minijasminenode"
