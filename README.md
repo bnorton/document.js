@@ -1,54 +1,47 @@
-# lib.js
+# document.js
 
-A base configuration and starter project for a simple JavaScript library / Component
+[![Circle CI](https://circleci.com/gh/bnorton/document.js.svg?style=svg)](https://circleci.com/gh/bnorton/document.js)
+[![npm version](https://badge.fury.io/js/document.js.svg)](http://badge.fury.io/js/document.js)
 
-##Getting Started
+#Getting started
 
-####Clone this repository
-Setup a new directory and update the origin
+###Install it
+```bash
+$ npm install document.js
+```
+
+###Require it
 ```javascript
-git clone git@github.com:bnorton/lib.js.git {{name}}.js
-cd {{name}}.js
-git remote set-url origin git@github.com:{{username}}/{{name}}.js.git
+var Document = require('document.js');
 ```
 
-####Search the project for things to replace
-1. Rename `{{name}}` to the new library name
-1. Rename `{{username}}` with yours on GitHub and CircleCI respectively
-1. Rename `{{full name}}` with your name and company name (if any)
-
-####Add and Install dependencies
-Add any libraries / dependencies that you know of then
-```bash
-$ npm install -g browserify
-$ npm install -g uglify
-$ npm install
+###Use it
+```javascript
+Channel = Document.progeny('Channel', {
+}, {
+  classMethods: {
+    fields: {
+      String: { slug: 's', name: 'n', token: 't' },
+      Date: { firstMessageAt: 'fma' },
+      Integer: { keepAlive: 'ka', buffered: 'b', capped: 'c' },
+      Object: { info: 'i' }
+    },
+    // belongsTo: ['user'], TODO
+    // hasMany: ['messages'], TODO
+    allow: ['name', 'token', 'userId', 'firstMessageAt', 'buffered', 'capped'],
+    validate: {
+      presence: ['name', 'userId'],
+      format: { slug: /^#\w{4,16}/ },
+      custom: [
+        function() { return Object.keys(this.get('info')).length > 0 }
+      ]
+    },
+    beforeCreate: [
+      function() {
+        this.set('token', '{{random token generator}}');
+      }
+    ]
+  }
+});
 ```
-
-####Add tests
-```bash
-$ make test
-```
-
-####Add implementations
-```bash
-$ make test
-```
-
-####Build you first browserified / minified versions and publish
-```bash
-$ make
-$ git commit -am "[Release] Version x.y.z"
-$ git tag -a 0.9.0 -m "[Release] Version x.y.z" -m "Other words of wisdom and what has changed"
-$ npm publish
-```
-
-#### Add this project to CircleCI
-Enable the build status at the top of the README.lib.md doc
-
-------------------------
-
-####Replace this document with the real deal and `#win`
-```bash
-$ mv README.lib.md README.md
-```
+For the full API see the [document definition](https://github.com/bnorton/document.js/wiki/document-definition) docs.
