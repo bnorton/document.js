@@ -1,7 +1,7 @@
 {
   "name": "document.js",
   "repository": "https://github.com/bnorton/document.js.git",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "license": "MIT",
   "description": "General purpose ODM supporting memory and mongo database adapters",
   "keywords": [
