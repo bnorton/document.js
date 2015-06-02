@@ -26,7 +26,7 @@ Channel = Document.progeny('Channel', {
       Integer: { keepAlive: 'ka', buffered: 'b', capped: 'c' },
       Object: { info: 'i' }
     },
-    // belongsTo: ['user'], TODO
+    belongsTo: ['user'],
     // hasMany: ['messages'], TODO
     allow: ['name', 'token', 'userId', 'firstMessageAt', 'buffered', 'capped'],
     validate: {
