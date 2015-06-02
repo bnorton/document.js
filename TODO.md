@@ -17,6 +17,9 @@ Inline context by searching for `TODO`
  - store the un-persisted state of a model as `persisted=false`
  - update to `true` when the save succeeds
 
+1. Assign a createdAt on create
+1. Assign an updatedAt when saving
+
 #Relation
 
 1. Store / translate the short for the semantic long values
