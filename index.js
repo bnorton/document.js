@@ -1,3 +1,7 @@
+/*!
+ * document.js (c) 2015 Brian Norton
+ * This library may be freely distributed under the MIT license.
+ */
 require('progenitor.js')();
 
 var extend = require('extend'),
@@ -203,7 +207,7 @@ Document = Object.progeny('Document', {
   }
 });
 
-function adapterDirection(name) {
+function adapterDirection(name) { // implements .first and .last
   var model = new this({_id: null});
   this.adapter[name].call(this.adapter, function(options) {
     model.kept(options);
