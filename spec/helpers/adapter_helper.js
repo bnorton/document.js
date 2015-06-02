@@ -1,14 +1,13 @@
 module.exports = function(klass, extras) {
   describe(klass.className, function() {
-    var adapter, channelA, channelB, withRecords = function(done) {
+    var Channel = require('../../examples/models/channel');
+    var scope, adapter, channelA, channelB, withRecords = function(done) {
       adapter.create({_id: 123, name: 'Channel A', buffered: 400}, function(r) {
         channelA = r; adapter.create({_id: 456, name: 'Channel B', buffered: 400}, function(rr) {
           channelB = rr; done();
         });
       });
     };
-
-    extras && extras.call(this);
 
     beforeEach(function() {
       channelA = channelB = null;
@@ -20,10 +19,12 @@ module.exports = function(klass, extras) {
 
     it('connects', function(done) {
       klass.connect(function() {
-        adapter = new klass('Channel');
+        adapter = scope.adapter = new klass(Channel);
         adapter.clear(done);
       });
     });
+
+    extras && extras.call(this, scope = { });
 
     describe('#count', function() {
       it('should be zero', function(done) {
