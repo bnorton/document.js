@@ -3,12 +3,15 @@ require('./helpers/spec_helper');
 var extend = require('extend');
 
 describe('Document', function() {
-  var Channel, User;
-  var model, relation, objectID = require('mongodb').ObjectID;
-  var __id = 1, createChannel = function(options) {
+  var model, relation, objectID = require('mongodb').ObjectID, __id = 1;
+  var Channel, createChannel = function(options) {
     options = extend({name: 'Channel '+ (++__id), slug: '#updates'}, options);
 
     return (new Channel(options)).save();
+  };
+
+  var User, createUser = function() {
+    return (new User({email: 'john+'+parseInt(Math.random()*100, 10)+'@example.com'})).save()
   };
 
   beforeEach(function() {
@@ -21,12 +24,12 @@ describe('Document', function() {
   });
 
   it('should have the fields', function() {
-    expect(Channel.namedFields).toEqual({ _id: '_id', name: 'n',  slug: 's', token: 't', buffered: 'bu', capped: 'c', createdAt: 'cT', updatedAt: 'uT' });
+    expect(Channel.namedFields).toEqual({ _id: '_id', name: 'n',  slug: 's', token: 't', buffered: 'bu', capped: 'c', createdAt: 'cT', updatedAt: 'uT', user_id: 'u_id'});
     expect(User.namedFields).toEqual({ _id: '_id', firstName: 'fn', lastName: 'ln', email: 'e',  createdAt: 'cT', updatedAt: 'uT' });
   });
 
   it('should have the shot fields', function() {
-    expect(Channel.shortFields).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt' });
+    expect(Channel.shortFields).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt', u_id: 'user_id' });
     expect(User.shortFields).toEqual({ _id: '_id', fn: 'firstName', ln: 'lastName', e: 'email', cT: 'createdAt', uT: 'updatedAt' });
   });
 
@@ -131,6 +134,80 @@ describe('Document', function() {
           });
 
           expect(called).toBe(true);
+        });
+      });
+    });
+  });
+
+  describe('#belongsTo', function() {
+    it('should add the association', function() {
+      expect(model.get('user')).toBeNull();
+    });
+
+    it('should have the user id', function() {
+      expect(model.get('user_id')).toBeNull();
+    });
+
+    describe('when assigning a user', function() {
+      var user;
+
+      beforeEach(function(done) {
+        user = createUser({firstName: 'James'});
+        user.then(function() {
+          model.set('user', user);
+          done();
+        });
+      });
+
+      it('should set the user id', function() {
+        expect(model.get('user_id')).toBe(user.id);
+      });
+
+      it('should have the changes', function() {
+        expect(model.changedAttributes()).toEqual({user_id: [null, user.id]});
+      });
+
+      it('should have the user', function() {
+        expect(model.get('user') instanceof User).toBe(true);
+      });
+
+      it('should return the user', function(done) {
+        var result = model.get('user');
+        result.then(function() {
+          expect(result.id).toBe(user.id);
+          done();
+        });
+      });
+    });
+
+    describe('when assigning a user by id', function() {
+      var user;
+
+      beforeEach(function(done) {
+        user = createUser({firstName: 'James'});
+        user.then(function() {
+          model.set('user_id', user.id);
+          done();
+        });
+      });
+
+      it('should set the user id', function() {
+        expect(model.get('user_id')).toBe(user.id);
+      });
+
+      it('should have the user', function() {
+        expect(model.get('user') instanceof User).toBe(true);
+      });
+
+      it('should have the changes', function() {
+        expect(model.changedAttributes()).toEqual({user_id: [null, user.id]});
+      });
+
+      it('should return the user', function(done) {
+        var result = model.get('user');
+        result.then(function() {
+          expect(result.id).toBe(user.id);
+          done();
         });
       });
     });
@@ -247,11 +324,11 @@ describe('Document', function() {
 
   describe('#asJSON', function() {
     it('should be the allowed fields', function() {
-      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'slug', 'token', 'buffered']);
+      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'user', 'slug', 'token', 'buffered']);
     });
 
     it('should have the values', function() {
-      expect(model.asJSON()).toEqual({id: '123', createdAt: null, updatedAt: null, name: 'Channel 123', slug: '#foo-bars', token: null, buffered: 200})
+      expect(model.asJSON()).toEqual({id: '123', createdAt: null, updatedAt: null, name: 'Channel 123', user: { id: null }, slug: '#foo-bars', token: null, buffered: 200})
     });
 
     it('should convert object ids', function() {
@@ -617,11 +694,6 @@ describe('Document', function() {
       });
 
       describe('when other models are added', function() {
-        var User = require('../examples/models/user'),
-          createUser = function() {
-            return (new User({email: 'john+'+parseInt(Math.random()*100, 10)+'@example.com'})).save()
-          };
-
         beforeEach(function(done) {
           createUser().then(function() {
             createUser().then(done);

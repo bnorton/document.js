@@ -7,6 +7,7 @@ require('progenitor.js')();
 var extend = require('extend'),
   objectID = require('mongodb').ObjectID,
   Adapter = process.env.NODE_ENV === 'test' ? require('./lib/memory_adapter') : require('./lib/mongo_adapter'),
+  inflect = require('i')(),
   noop = function() { };
 
 Document = Object.progeny('Document', {
@@ -61,7 +62,11 @@ Document = Object.progeny('Document', {
   get: function(name) {
     if(name == 'id') return this.id;
 
-    if(this.class.namedFields[name]) {
+    if(this.class.belongsTo.indexOf(name) >= 0) {
+      var id = this.get(inflect.foreign_key(name));
+
+      return id && Document[inflect.classify(name)].find(id);
+    } else if(this.class.namedFields[name]) {
       return this._data[name] || null;
     }
   },
@@ -74,7 +79,15 @@ Document = Object.progeny('Document', {
     }
 
     for(name in options) {
-      if(this.class.namedFields[name]) {
+      var belongsTo = this.class.belongsTo.indexOf(name) >= 0;
+
+      if(belongsTo) {
+        var key = inflect.foreign_key(name);
+        options[key] = options[name].id;
+        name = key;
+      }
+
+      if(belongsTo || this.class.namedFields[name]) {
         if((from = this.get(name)) != (to = options[name])) {
           this._changes[name] = [from, to];
         }
@@ -167,7 +180,11 @@ Document = Object.progeny('Document', {
     for(var i = 0; i < this.class.allow.length; ++i) {
       name = this.class.allow[i];
 
-      json[name] = this.get(name);
+      if(/(.+)_id$/.test(name)) {
+        json[name.slice(0,-3)] = { id: this.get(name) };
+      } else {
+        json[name] = this.get(name);
+      }
     }
 
     return json;
@@ -177,10 +194,19 @@ Document = Object.progeny('Document', {
     namedFields: null,
     shortFields: null,
     inherited: function(base) { var fields;
+      this[base.className] = base;
+
+      base.fields || (base.fields = {});
+      base.belongsTo || (base.belongsTo = []);
+
       base.adapter = new Adapter(base);
       base.fields.ObjectID = extend({ _id: '_id' }, base.fields.ObjectID);
       base.fields.Date = extend({ createdAt: 'cT',  updatedAt: 'uT' }, base.fields.Date);
       base.namedFields = {}; base.shortFields = {};
+
+      base.belongsTo.forEach(function(name) {
+        base.fields.ObjectID[inflect.foreign_key(name)] = name.slice(0,1)+'_id';
+      });
 
       for(var type in base.fields) {
         for(var attr in (fields = base.fields[type])) {

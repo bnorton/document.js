@@ -5,7 +5,8 @@ Channel = Document.progeny('Channel', {
       String: { name: 'n', slug: 's', token: 't' },
       Integer: { buffered: 'bu', capped: 'c'}
     },
-    allow: ['name', 'slug', 'token', 'buffered'],
+    belongsTo: ['user'],
+    allow: ['name', 'user_id', 'slug', 'token', 'buffered'],
     validate: {
       presence: ['name'],
       format: { slug: /^#\w+/ }
