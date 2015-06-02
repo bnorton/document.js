@@ -1,7 +1,7 @@
 Channel = Document.progeny('Channel', {
 }, {
   classMethods: {
-    attrs: {
+    fields: {
       String: { name: 'n', slug: 's', token: 't' },
       Integer: { buffered: 'bu', capped: 'c'}
     },

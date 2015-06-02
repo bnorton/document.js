@@ -7,7 +7,7 @@ User = Document.progeny('User', {
   }
 }, {
   classMethods: {
-    attrs: {
+    fields: {
       String: { firstName: 'fn', lastName: 'ln', email: 'e' }
     },
     allow: ['email', 'name'],

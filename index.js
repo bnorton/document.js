@@ -61,7 +61,7 @@ Document = Object.progeny('Document', {
   get: function(name) {
     if(name == 'id') return this.id;
 
-    if(this.class.namedAttrs[name]) {
+    if(this.class.namedFields[name]) {
       return this._data[name] || null;
     }
   },
@@ -74,7 +74,7 @@ Document = Object.progeny('Document', {
     }
 
     for(name in options) {
-      if(this.class.namedAttrs[name]) {
+      if(this.class.namedFields[name]) {
         if((from = this.get(name)) != (to = options[name])) {
           this._changes[name] = [from, to];
         }
@@ -174,18 +174,18 @@ Document = Object.progeny('Document', {
   }
 }, {
   classMethods: {
-    namedAttrs: null,
-    shortAttrs: null,
-    inherited: function(base) { var attrs;
+    namedFields: null,
+    shortFields: null,
+    inherited: function(base) { var fields;
       base.adapter = new Adapter(base);
-      base.attrs.ObjectID = extend({ _id: '_id' }, base.attrs.ObjectID);
-      base.attrs.Date = extend({ createdAt: 'cT',  updatedAt: 'uT' }, base.attrs.Date);
-      base.namedAttrs = {}; base.shortAttrs = {};
+      base.fields.ObjectID = extend({ _id: '_id' }, base.fields.ObjectID);
+      base.fields.Date = extend({ createdAt: 'cT',  updatedAt: 'uT' }, base.fields.Date);
+      base.namedFields = {}; base.shortFields = {};
 
-      for(var type in base.attrs) {
-        for(var attr in (attrs = base.attrs[type])) {
-          base.namedAttrs[attr] = attrs[attr];
-          base.shortAttrs[attrs[attr]] = attr;
+      for(var type in base.fields) {
+        for(var attr in (fields = base.fields[type])) {
+          base.namedFields[attr] = fields[attr];
+          base.shortFields[fields[attr]] = attr;
         }
       }
     },

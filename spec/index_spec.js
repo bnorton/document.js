@@ -20,14 +20,14 @@ describe('Document', function() {
     model = new Channel({id: '123', name: 'Channel 123', slug: '#foo-bars', buffered: 200}, relation);
   });
 
-  it('should have the attrs', function() {
-    expect(Channel.namedAttrs).toEqual({ _id: '_id', name: 'n',  slug: 's', token: 't', buffered: 'bu', capped: 'c', createdAt: 'cT', updatedAt: 'uT' });
-    expect(User.namedAttrs).toEqual({ _id: '_id', firstName: 'fn', lastName: 'ln', email: 'e',  createdAt: 'cT', updatedAt: 'uT' });
+  it('should have the fields', function() {
+    expect(Channel.namedFields).toEqual({ _id: '_id', name: 'n',  slug: 's', token: 't', buffered: 'bu', capped: 'c', createdAt: 'cT', updatedAt: 'uT' });
+    expect(User.namedFields).toEqual({ _id: '_id', firstName: 'fn', lastName: 'ln', email: 'e',  createdAt: 'cT', updatedAt: 'uT' });
   });
 
-  it('should have the shot attrs', function() {
-    expect(Channel.shortAttrs).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt' });
-    expect(User.shortAttrs).toEqual({ _id: '_id', fn: 'firstName', ln: 'lastName', e: 'email', cT: 'createdAt', uT: 'updatedAt' });
+  it('should have the shot fields', function() {
+    expect(Channel.shortFields).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt' });
+    expect(User.shortFields).toEqual({ _id: '_id', fn: 'firstName', ln: 'lastName', e: 'email', cT: 'createdAt', uT: 'updatedAt' });
   });
 
   describe('.new', function() {
