@@ -6,6 +6,9 @@ Inline context by searching for `TODO`
 
 1. belongsTo
 1. hasMany
+1. Assign an ID for models without one
+ - store the un-persisted state of a model as `persisted=false`
+ - update to `true` when the save succeeds
 
 #Relation
 
