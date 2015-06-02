@@ -1,5 +1,4 @@
 Channel = Document.progeny('Channel', {
-
 }, {
   classMethods: {
     attrs: {
