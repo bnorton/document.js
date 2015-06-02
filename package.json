@@ -3,7 +3,7 @@
   "repository": "https://github.com/bnorton/document.js.git",
   "version": "0.9.0",
   "license": "MIT",
-  "description": "",
+  "description": "General purpose ODM supporting memory and mongo database adapters",
   "keywords": [
     "document",
     "mapper",

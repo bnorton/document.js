@@ -1,6 +1,6 @@
 # document.js
 
-[![Circle CI](https://circleci.com/gh/bnorton/document.js.svg?style=svg)](https://circleci.com/gh/bnorton/document.js)
+[![Circle CI](https://circleci.com/gh/bnorton/document.js.svg?style=svg)](https://circleci.com/gh/bnorton/document.js)  
 [![npm version](https://badge.fury.io/js/document.js.svg)](http://badge.fury.io/js/document.js)
 
 #Getting started
