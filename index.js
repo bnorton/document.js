@@ -203,7 +203,7 @@ Document = Object.progeny('Document', {
   }
 });
 
-function adapterDirection(name) { // implements .first and .last
+function adapterDirection(name) {
   var model = new this({_id: null});
   this.adapter[name].call(this.adapter, function(options) {
     model.kept(options);
