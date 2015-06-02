@@ -124,7 +124,7 @@ describe('Relation', function() {
 
       describe('when the adapter succeeds', function() {
         beforeEach(function() {
-          callback([{_id: 445, name: 'Channel 445'}, {_id: 556, name: 'Channel 556'}]);
+          callback([{_id: '445', name: 'Channel 445'}, {_id: '556', name: 'Channel 556'}]);
         });
 
         it('should be loaded', function() {
@@ -135,9 +135,9 @@ describe('Relation', function() {
           var models = relation.items;
 
           expect(models.length).toBe(2);
-          expect(models[0].id).toBe(445);
+          expect(models[0].id).toBe('445');
           expect(models[0].get('name')).toBe('Channel 445');
-          expect(models[1].id).toBe(556);
+          expect(models[1].id).toBe('556');
           expect(models[1].get('name')).toBe('Channel 556');
         });
 
@@ -167,7 +167,7 @@ describe('Relation', function() {
 
     describe('with a model', function() {
       beforeEach(function() {
-        model = new Channel({_id: 5});
+        model = new Channel({_id: '5'});
         relation = new Relation(Channel, model);
 
         spyOn(relation.adapter, 'where').and.callFake(function(b,c) {
@@ -189,7 +189,7 @@ describe('Relation', function() {
       });
 
       it('should call the adapter find with the model id' , function() {
-        expect(findOptions).toEqual({_id: 5});
+        expect(findOptions).toEqual({_id: '5'});
       });
 
       describe('when the adapter succeeds', function() {
@@ -229,7 +229,7 @@ describe('Relation', function() {
 
     describe('when there are items', function() {
       beforeEach(function() {
-        relation.items = [new Channel({id: 2}), new Channel({id: 4, name: 'Four'})];
+        relation.items = [new Channel({id: '2'}), new Channel({id: '4', name: 'Four'})];
       });
 
       it('should be the items', function() {
@@ -387,7 +387,7 @@ describe('Relation', function() {
 
     describe('with a model', function() {
       beforeEach(function() {
-        model = new Channel({id: 556});
+        model = new Channel({id: '556'});
         spyOn(model, 'kept');
 
         relation = new Relation(Channel, model);
@@ -411,7 +411,7 @@ describe('Relation', function() {
 
       it('should send the update to the adapter', function() {
         expect(relation.adapter.update).toHaveBeenCalled();
-        expect(adapterFinder).toEqual({_id: 556});
+        expect(adapterFinder).toEqual({_id: '556'});
         expect(adapterOptions).toEqual({name: 'Name value'});
       });
 

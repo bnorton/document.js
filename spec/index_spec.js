@@ -28,7 +28,7 @@ describe('Document', function() {
     expect(User.namedFields).toEqual({ _id: '_id', firstName: 'fn', lastName: 'ln', email: 'e',  createdAt: 'cT', updatedAt: 'uT' });
   });
 
-  it('should have the shot fields', function() {
+  it('should have the short fields', function() {
     expect(Channel.shortFields).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt', u_id: 'user_id' });
     expect(User.shortFields).toEqual({ _id: '_id', fn: 'firstName', ln: 'lastName', e: 'email', cT: 'createdAt', uT: 'updatedAt' });
   });
@@ -48,6 +48,10 @@ describe('Document', function() {
 
     it('should not be loaded', function() {
       expect(model.loaded).toBe(false);
+    });
+
+    it('should be persisted', function() {
+      expect(model.persisted).toBe(true);
     });
 
     it('should have the attributes', function() {
@@ -88,7 +92,7 @@ describe('Document', function() {
           expect(model.get('name')).toBe('Foo');
         });
 
-        it('should call success', function() {
+        it('should have the id', function() {
           expect(result.id).toBe(model.id);
         });
 
@@ -225,6 +229,41 @@ describe('Document', function() {
 
       it('should be loaded', function() {
         expect(model.loaded).toBe(true);
+      });
+    });
+  });
+
+  describe('#persisted', function() {
+    beforeEach(function() {
+      model = new Channel({name: 'New channel', slug: "#new"});
+    });
+
+    it('should be given an id', function() {
+      expect(model.id).toBeDefined(false);
+      expect(model._data._id).toBe(model.id);
+    });
+
+    it('should not be persisted', function() {
+      expect(model.persisted).toBe(false);
+    });
+
+    describe('when record is saved', function() {
+      beforeEach(function() {
+        model.kept({_id: '44'});
+      });
+
+      it('should be persisted', function() {
+        expect(model.persisted).toBe(true);
+      });
+    });
+
+    describe('when record fails to save', function() {
+      beforeEach(function() {
+        model.kept(null);
+      });
+
+      it('should not be persisted', function() {
+        expect(model.persisted).toBe(false);
       });
     });
   });
@@ -475,8 +514,12 @@ describe('Document', function() {
     describe('on create', function() {
       it('should not be loaded', function() {
         model.save();
-
         expect(model.loaded).toBe(false);
+      });
+
+      it('should not be persisted', function() {
+        model.save();
+        expect(model.persisted).toBe(false);
       });
 
       it('should return Relation#create', function() {
@@ -521,17 +564,17 @@ describe('Document', function() {
 
     describe('on update', function() {
       beforeEach(function() {
-        model.id = model._data._id = '1256';
+        model.persisted = true;
       });
 
-      it('should not be loaded', function() {
+      it('should be loaded', function() {
         model.save();
 
-        expect(model.loaded).toBe(false);
+        expect(model.loaded).toBe(true);
       });
 
-      it('should return Relation#update', function() {
-        expect(model.save()).toBe('Document:update');
+      it('should return the model', function() {
+        expect(model.save()).toBe(model);
       });
 
       describe('when there are changes', function() {
@@ -556,6 +599,10 @@ describe('Document', function() {
         it('should send the changes to the relation', function() {
           model.save();
           expect(relation.update).toHaveBeenCalledWith({buffered: 900});
+        });
+
+        it('should return Relation#update', function() {
+          expect(model.save()).toBe('Document:update');
         });
 
         describe('when the model is not valid', function() {
