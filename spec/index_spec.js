@@ -336,6 +336,13 @@ describe('Document', function() {
 
       expect(model.asJSON().id).toBe(model.id.toString());
     });
+
+    it('should convert object ids', function() {
+      var id = objectID();
+      model.set('user_id', id);
+
+      expect(model.asJSON().user.id).toBe(id.toString());
+    });
   });
 
   describe('#isValid', function() {

@@ -180,8 +180,8 @@ Document = Object.progeny('Document', {
     for(var i = 0; i < this.class.allow.length; ++i) {
       name = this.class.allow[i];
 
-      if(/(.+)_id$/.test(name)) {
-        json[name.slice(0,-3)] = { id: this.get(name) };
+      if(/(.+)_id$/.test(name)) { var value = this.get(name);
+        json[name.slice(0,-3)] = { id: value ? value.toString() : value };
       } else {
         json[name] = this.get(name);
       }
