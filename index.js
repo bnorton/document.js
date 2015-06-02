@@ -208,7 +208,7 @@ Document = Object.progeny('Document', {
       }
     },
     find: function(id) { var model;
-      if(id && (typeof id == 'string' || id._bsontype == 'ObjectID')) {
+      if(id && (typeof id == 'string' || id._bsontype === 'ObjectID')) {
         this.loaded = false;
         id = objectID.isValid(id) ? objectID(id) : id;
 
@@ -228,9 +228,6 @@ Document = Object.progeny('Document', {
 function assignOptions(options) {
   var id = options.id || options._id;
 
-  delete options.id;
-  delete options._id;
-
   this.persisted = !!id;
 
   if(id) {
@@ -247,7 +244,7 @@ function assignOptions(options) {
     this.id = objectID();
   }
 
-  this._data = extend({_id: this.id }, options);
+  this._data = extend({_id: this.id }, optionsWithout(options, ['id', '_id']));
   this._changes = {};
 }
 
@@ -258,6 +255,18 @@ function adapterDirection(name) { // implements .first and .last
   });
 
   return model;
+}
+
+function optionsWithout(options, items) {
+  var other = {};
+
+  for(var o in options) {
+    if(items.indexOf(o) == -1) {
+      other[o] = options[o];
+    }
+  }
+
+  return other;
 }
 
 extend(Document, {
