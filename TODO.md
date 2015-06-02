@@ -14,18 +14,19 @@ Inline context by searching for `TODO`
  - lookup the relation when getting the hasMany key
 
 1. Assign an ID for models without one
- - store the un-persisted state of a model as `persisted=false`
- - update to `true` when the save succeeds
+ - store the un-persisted state of a model as `persisted=false` [Done in 0.9.5]
+ - update to `true` when the save succeeds [Done in 0.9.5]
 
 1. Assign a createdAt on create
 1. Assign an updatedAt when saving
 
 #Relation
 
+1.
+
+#Persistence
+
 1. Store / translate the short for the semantic long values
  - name stored a n
  - createdAt stored at cT
 
-#Persistence
-
-1.
