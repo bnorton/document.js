@@ -218,6 +218,7 @@ function adapterDirection(name) { // implements .first and .last
 
 extend(Document, {
   Relation: require('./lib/relation'),
+  Count: require('./lib/count'),
   Adapter: Adapter
 });
 

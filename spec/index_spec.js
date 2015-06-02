@@ -3,7 +3,7 @@ require('./helpers/spec_helper');
 var extend = require('extend');
 
 describe('Document', function() {
-  var Channel, User, Document = require('../index'), Count = Document.Count;
+  var Channel, User;
   var model, relation, objectID = require('mongodb').ObjectID;
   var __id = 1, createChannel = function(options) {
     options = extend({name: 'Channel '+ (++__id), slug: '#updates'}, options);

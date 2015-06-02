@@ -1,12 +1,10 @@
 require('./helpers/spec_helper');
 
-var Count = require('../lib/count');
-
-describe(Count.className, function() {
+describe('Count', function() {
   var count, relation;
 
   beforeEach(function() {
-    count = new Count(relation = jasmine.createSpy('Relation'));
+    count = new Document.Count(relation = jasmine.createSpy('Relation'));
   });
 
   it('should have the relation', function() {

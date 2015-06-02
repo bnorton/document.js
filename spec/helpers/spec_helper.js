@@ -1,6 +1,7 @@
 (function(once) { if(once) return function() {};
   global.itBehavesLikeAnAdapter = require('./adapter_helper');
   global._specHelper = true;
+  global.Document = require('../..');
 
   beforeEach(function() {
   });

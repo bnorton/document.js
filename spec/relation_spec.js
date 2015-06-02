@@ -1,8 +1,7 @@
 require('./helpers/spec_helper');
 
-var Relation = require('../index').Relation;
-
-describe(Relation.className, function() {
+describe('Relation', function() {
+  var Relation = require('../index').Relation;
   var Channel, relation;
 
   beforeEach(function() {
@@ -34,7 +33,7 @@ describe(Relation.className, function() {
   });
 
   describe('#count', function() {
-    var Count = require('../lib/count'), count, callback;
+    var count, callback;
 
     beforeEach(function() {
       callback = null;
@@ -48,7 +47,7 @@ describe(Relation.className, function() {
     });
 
     it('should return a count', function() {
-      expect(count instanceof Count).toBe(true);
+      expect(count instanceof Document.Count).toBe(true);
     });
 
     it('should have the relation', function() {
