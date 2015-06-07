@@ -15,7 +15,7 @@ describe('Relation', function() {
   });
 
   it('should have the adapter', function() {
-    expect(relation.adapter instanceof MemoryAdapter).toBe(true);
+    expect(relation.adapter.className).toBe('MemoryAdapter');
     expect(relation.adapter).toBe(Channel.adapter);
   });
 

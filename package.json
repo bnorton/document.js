@@ -16,10 +16,11 @@
     "progenitor.js": "*",
     "extend": "*",
     "json.mustache.js": "*",
-    "i": "*",
-    "mongodb": "2.*"
+    "base-62.js": "*",
+    "i": "*"
   },
   "devDependencies": {
-    "minijasminenode2": "bnorton/minijasminenode"
+    "minijasminenode2": "bnorton/minijasminenode",
+    "mongodb": "2.*"
   }
 }
