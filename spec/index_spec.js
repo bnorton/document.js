@@ -3,7 +3,7 @@ require('./helpers/spec_helper');
 var extend = require('extend');
 
 describe('Document', function() {
-  var model, relation, objectID = require('mongodb').ObjectID, __id = 1;
+  var model, relation, __id = 1;
   var Channel, createChannel = function(options) {
     options = extend({name: 'Channel '+ (++__id), slug: '#updates'}, options);
 
@@ -371,13 +371,13 @@ describe('Document', function() {
     });
 
     it('should convert object ids', function() {
-      model.id = objectID();
+      model.id = Document.Adapter.ids.next();
 
       expect(model.asJSON().id).toBe(model.id.toString());
     });
 
     it('should convert object ids', function() {
-      var id = objectID();
+      var id = Document.Adapter.ids.next();
       model.set('user_id', id);
 
       expect(model.asJSON().user.id).toBe(id.toString());
@@ -786,7 +786,7 @@ describe('Document', function() {
           expect(Channel.find(id) instanceof Channel).toEqual(true);
         });
 
-        it('should find the model', function() {
+        it('should find the model', function(done) {
           var channel = Channel.find(id);
           channel.then(function() {
             expect(channel.id).toEqual(model.id);

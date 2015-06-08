@@ -1,4 +1,4 @@
-module.exports = function(klass, extras) {
+module.exports = function(klass, options, extras) {
   describe(klass.className, function() {
     var Channel = require('../../examples/models/channel');
     var scope, adapter, channelA, channelB, withRecords = function(done) {
@@ -247,6 +247,60 @@ module.exports = function(klass, extras) {
 
     it('disconnects', function(done) {
       klass.disconnect(done);
+    });
+
+    describe('.ids', function() {
+      var id;
+
+      beforeEach(function() {
+        id = options.ids.valid;
+      });
+
+      describe('.isValid', function() {
+        it('should be valid', function() {
+          expect(klass.ids.isValid(id)).toBe(true);
+        });
+
+        describe('for an invalid key', function() {
+          beforeEach(function() {
+            id = options.ids.invalid
+          });
+
+          it('should not be valid', function() {
+            expect(klass.ids.isValid(id)).toBe(false);
+          });
+        });
+      });
+
+      describe('.next', function() {
+        describe('when converting', function() {
+          var from, to;
+
+          beforeEach(function() {
+            from = klass.ids.next(options.ids.valid);
+            to = options.ids.converted;
+          });
+
+          it('should be the same', function() {
+            expect(from).toEqual(to);
+          });
+        });
+
+        describe('when generating', function() {
+          var ids, uniq;
+
+          beforeEach(function() {
+            ids = []; uniq = {};
+
+            for(var i=0; i<100; ++i) { ids.push(klass.ids.next().toString()) }
+            for(var j=0; j<ids.length; ++j) { uniq[ids[j]] = true; }
+          });
+
+          it('should generate unique ids', function() {
+            expect(Object.keys(uniq)).toEqual(ids);
+          });
+        });
+      });
     });
   });
 };
