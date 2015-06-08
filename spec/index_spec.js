@@ -51,7 +51,7 @@ describe(Document.className, function() {
     });
 
     it('should be persisted', function() {
-      expect(model.persisted).toBe(true);
+      expect(model.persisted).toBe(false);
     });
 
     it('should have the attributes', function() {
@@ -239,12 +239,27 @@ describe(Document.className, function() {
     });
 
     it('should be given an id', function() {
-      expect(model.id).toBeDefined(false);
+      expect(model.id).toBeDefined();
       expect(model._data._id).toBe(model.id);
     });
 
     it('should not be persisted', function() {
       expect(model.persisted).toBe(false);
+    });
+
+    describe('when the id is given', function() {
+      beforeEach(function() {
+        model = new Channel({id: '55', name: 'New channel', slug: "#new"});
+      });
+
+      it('should be given an id', function() {
+        expect(model.id).toBe('55');
+        expect(model._data._id).toBe('55');
+      });
+
+      it('should not be persisted', function() {
+        expect(model.persisted).toBe(false);
+      });
     });
 
     describe('when record is saved', function() {
