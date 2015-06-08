@@ -5,7 +5,7 @@ describe('Relation', function() {
   var Channel, relation;
 
   beforeEach(function() {
-    Channel || (Channel = require('../examples/models/channel'));
+    Channel = require('../examples/models/channel');
 
     relation = new Relation(Channel);
   });

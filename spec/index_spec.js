@@ -2,7 +2,7 @@ require('./helpers/spec_helper');
 
 var extend = require('extend');
 
-describe('Document', function() {
+describe(Document.className, function() {
   var model, relation, __id = 1;
   var Channel, createChannel = function(options) {
     options = extend({name: 'Channel '+ (++__id), slug: '#updates'}, options);
@@ -15,8 +15,8 @@ describe('Document', function() {
   };
 
   beforeEach(function() {
-    Channel || (Channel = require('../examples/models/channel'));
-    User || (User = require('../examples/models/user'));
+    Channel = require('../examples/models/channel');
+    User = require('../examples/models/user');
 
     relation = jasmine.createSpy('Relation');
 
