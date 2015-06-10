@@ -149,8 +149,7 @@ exports = module.exports = MemoryAdapter;
 },{"./adapter":1,"base-62.js":6,"extend":9}],4:[function(require,module,exports){
 var config = require('json.mustache.js'),
   inflect = require('i')(),
-  mongo = require('mongodb').MongoClient,
-  objectID = require('mongodb').ObjectID,
+  objectID = function() { return require('mongodb').ObjectID },
   Adapter = require('./adapter');
 
 MongoAdapter = Adapter.progeny('MongoAdapter', {
@@ -215,7 +214,7 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
   classMethods: {
     connection: null,
     connect: function(callback) { var that = this;
-      mongo.connect(config('mongo').url, function(error, database) {
+      require('mongodb').MongoClient.connect(config('mongo').url, function(error, database) {
         if(error) { console.warn('Error connecting to MongoDB error: ', error,  '<---'); throw new Error('DB connect error', error); }
 
         that.connection = database;
@@ -226,8 +225,11 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
       this.connection.close(); callback();
     },
     ids: {
-      isValid: objectID.isValid,
-      next: objectID
+      isValid: function(id) {
+        return objectID().isValid(id);
+      }, next: function(id) {
+        return objectID(id);
+      }
     }
   }
 });
