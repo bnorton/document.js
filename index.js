@@ -228,7 +228,7 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
       isValid: function(id) {
         return objectID().isValid(id);
       }, next: function(id) {
-        return objectID(id);
+        return objectID()(id);
       }
     }
   }
