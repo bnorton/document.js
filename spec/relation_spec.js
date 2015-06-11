@@ -118,8 +118,8 @@ describe('Relation', function() {
         expect(relation.loaded).toBe(false);
       });
 
-      it('should call the adapter find with the options' , function() {
-        expect(findOptions).toEqual({buffered: 5, foo: 'bar'});
+      it('should call the adapter find with the translated options' , function() {
+        expect(findOptions).toEqual({bu: 5, foo: 'bar'});
       });
 
       describe('when the adapter succeeds', function() {
@@ -276,9 +276,9 @@ describe('Relation', function() {
         expect(object).toBe(model);
       });
 
-      it('should send the create to the adapter', function() {
+      it('should send the create to the adapter with the translated values', function() {
         expect(relation.adapter.create).toHaveBeenCalled();
-        expect(adapterOptions).toEqual({_id: 556, name: 'Name value'});
+        expect(adapterOptions).toEqual({_id: 556, n: 'Name value'});
       });
 
       describe('when the adapter succeeds', function() {
@@ -351,7 +351,7 @@ describe('Relation', function() {
       it('should update all records', function() {
         expect(relation.adapter.update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({});
-        expect(adapterOptions).toEqual({name: 'Name value'});
+        expect(adapterOptions).toEqual({n: 'Name value'});
       });
 
       describe('when the adapter succeeds', function() {
@@ -412,7 +412,7 @@ describe('Relation', function() {
       it('should send the update to the adapter', function() {
         expect(relation.adapter.update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({_id: '556'});
-        expect(adapterOptions).toEqual({name: 'Name value'});
+        expect(adapterOptions).toEqual({n: 'Name value'});
       });
 
       describe('when the adapter succeeds', function() {
