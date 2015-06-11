@@ -26,6 +26,7 @@ Inline context by searching for `TODO`
 
 #Persistence
 
+1. Allow the default mapped (short) field names to be modified.
 1. Store / translate the short for the semantic long values
  - name stored a n
  - createdAt stored at cT
