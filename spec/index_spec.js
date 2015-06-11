@@ -2,22 +2,22 @@ require('./helpers/spec_helper');
 
 var extend = require('extend');
 
+var Channel = require('../examples/models/channel'),
+  User = require('../examples/models/user');
+
 describe(Document.className, function() {
   var model, relation, __id = 1;
-  var Channel, createChannel = function(options) {
+  var createChannel = function(options) {
     options = extend({name: 'Channel '+ (++__id), slug: '#updates'}, options);
 
     return (new Channel(options)).save();
   };
 
-  var User, createUser = function() {
+  var createUser = function() {
     return (new User({email: 'john+'+parseInt(Math.random()*100, 10)+'@example.com'})).save()
   };
 
   beforeEach(function() {
-    Channel = require('../examples/models/channel');
-    User = require('../examples/models/user');
-
     relation = jasmine.createSpy('Relation');
 
     model = new Channel({id: '123', name: 'Channel 123', slug: '#foo-bars', buffered: 200}, relation);
@@ -31,6 +31,13 @@ describe(Document.className, function() {
   it('should have the short fields', function() {
     expect(Channel.shortFields).toEqual({ _id: '_id', n: 'name',  s: 'slug', t: 'token', bu: 'buffered', c: 'capped', cT: 'createdAt', uT: 'updatedAt', u_id: 'user_id' });
     expect(User.shortFields).toEqual({ _id: '_id', fn: 'firstName', ln: 'lastName', e: 'email', cT: 'createdAt', uT: 'updatedAt' });
+  });
+
+  it('allows modification of the default fields', function() {
+    Document.defaultFields.Date.createdAt = 'cr_at';
+    var Post = require('../examples/models/post');
+
+    expect(Post.fields.Date.createdAt).toBe('cr_at');
   });
 
   describe('.new', function() {
