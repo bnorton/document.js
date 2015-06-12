@@ -1,7 +1,7 @@
 require('./helpers/spec_helper');
 
 describe('Relation', function() {
-  var Relation = require('../index').Relation;
+  var Relation = require('../lib/index')().Relation;
   var Channel, relation;
 
   beforeEach(function() {
