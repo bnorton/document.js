@@ -155,7 +155,6 @@ var extend = require('extend'),
 Relation = Object.progeny('Relation', {
   init: function(modelClass, model) {
     this.modelClass = modelClass;
-    this.adapter = modelClass.adapter;
 
     model ? (this.model = model) : (this._query = {});
 
@@ -189,7 +188,7 @@ Relation = Object.progeny('Relation', {
   count: function() { var that = this;
     var count = new Document.Count(this);
 
-    this.adapter.count(function(result) {
+    this.modelClass.adapter().count(function(result) {
       that.loaded = true;
       count.kept(result);
     });
@@ -200,7 +199,7 @@ Relation = Object.progeny('Relation', {
     this.loaded = false;
 
     if(this.model) {
-      this.adapter.where({_id: this.model.id}, function(value) {
+      this.modelClass.adapter().where({_id: this.model.id}, function(value) {
         that.loaded = true;
 
         value = Array.isArray(value) ? that.model.class.shortToLong(value[0]) : value;
@@ -213,7 +212,7 @@ Relation = Object.progeny('Relation', {
       var Model = this.modelClass;
       options = Model.longToShort(options);
 
-      this.adapter.where(options, function(value) {
+      this.modelClass.adapter().where(options, function(value) {
         if(Array.isArray(value)) {
           value = value.map(function(options) {
             var model = new Model({_id: null});
@@ -247,7 +246,7 @@ Relation = Object.progeny('Relation', {
 
     options = this.modelClass.longToShort(options);
 
-    this.adapter.create(options, function(value) {
+    this.modelClass.adapter().create(options, function(value) {
       that.loaded = true;
 
       value = that.model.class.shortToLong(value);
@@ -263,7 +262,7 @@ Relation = Object.progeny('Relation', {
     options = this.modelClass.longToShort(options);
 
     if(this.model) {
-      this.adapter.update({_id: this.model.id}, options, function(value) {
+      this.modelClass.adapter().update({_id: this.model.id}, options, function(value) {
         that.loaded = true;
         that.model.kept(value);
       });
@@ -271,7 +270,7 @@ Relation = Object.progeny('Relation', {
       return this.model;
     } else {
       // TODO query should translate fields when the value of _query can change
-      this.adapter.update(this._query, options, function(value) {
+      this.modelClass.adapter().update(this._query, options, function(value) {
         that.kept(value);
       });
 
@@ -3766,6 +3765,7 @@ require('progenitor.js')();
 var extend = require('extend'),
   inflect = require('i')(),
   Adapter = require('./memory_adapter'),
+  adapterCache = { },
   noop = function() { };
 
 Document = Object.progeny('Document', {
@@ -3887,7 +3887,7 @@ Document = Object.progeny('Document', {
   destroy: function() { var that = this;
     this.loaded = false;
 
-    this.class.adapter.remove({_id: this.id}, function(value) {
+    this.class.adapter().remove({_id: this.id}, function(value) {
       that.loaded = true;
 
       that.kept(that.isDestroyed = !!value);
@@ -3947,13 +3947,15 @@ Document = Object.progeny('Document', {
       ObjectID: { _id: '_id' },
       Date: { createdAt: 'cT',  updatedAt: 'uT' }
     },
+    adapter: function() {
+      return adapterCache[this.className] || (adapterCache[this.className] = new Adapter(this));
+    },
     inherited: function(base) { var fields;
       this[base.className] = base;
 
       base.fields || (base.fields = {});
       base.belongsTo || (base.belongsTo = []);
 
-      base.adapter = new Adapter(base);
       base.fields.ObjectID = extend({}, this.defaultFields.ObjectID, base.fields.ObjectID);
       base.fields.Date = extend({}, this.defaultFields.Date, base.fields.Date);
       base.namedFields = {}; base.shortFields = {};
@@ -4014,7 +4016,7 @@ function assignOptions(options) {
 
 function adapterDirection(name) { // implements .first and .last
   var model = new this({_id: null});
-  this.adapter[name].call(this.adapter, function(options) {
+  this.adapter()[name].call(this.adapter(), function(options) {
     options = model.class.shortToLong(options);
 
     model.kept(options);

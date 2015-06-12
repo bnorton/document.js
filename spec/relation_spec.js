@@ -14,11 +14,6 @@ describe('Relation', function() {
     expect(relation.modelClass).toBe(Channel);
   });
 
-  it('should have the adapter', function() {
-    expect(relation.adapter.className).toBe('MemoryAdapter');
-    expect(relation.adapter).toBe(Channel.adapter);
-  });
-
   it('should not be loaded', function() {
     expect(relation.loaded).toBe(false);
   });
@@ -38,7 +33,7 @@ describe('Relation', function() {
     beforeEach(function() {
       callback = null;
 
-      spyOn(relation.adapter, 'count').and.callFake(function(c) {
+      spyOn(Channel.adapter(), 'count').and.callFake(function(c) {
         callback = c;
       });
 
@@ -60,7 +55,7 @@ describe('Relation', function() {
 
     it('should call the adapter count', function() {
       relation.count();
-      expect(relation.adapter.count).toHaveBeenCalled();
+      expect(Channel.adapter().count).toHaveBeenCalled();
     });
 
     describe('when the adapter succeeds', function() {
@@ -103,7 +98,7 @@ describe('Relation', function() {
       beforeEach(function() {
         relation = new Relation(Channel);
 
-        spyOn(relation.adapter, 'where').and.callFake(function(b,c) {
+        spyOn(Channel.adapter(), 'where').and.callFake(function(b,c) {
           findOptions = b; callback = c;
         });
 
@@ -179,7 +174,7 @@ describe('Relation', function() {
         model = new Channel({_id: '5'});
         relation = new Relation(Channel, model);
 
-        spyOn(relation.adapter, 'where').and.callFake(function(b,c) {
+        spyOn(Channel.adapter(), 'where').and.callFake(function(b,c) {
           findOptions = b; callback = c;
         });
 
@@ -273,7 +268,7 @@ describe('Relation', function() {
         relation = new Relation(Channel, model);
         adapterOptions = adapterCallback = null;
 
-        spyOn(relation.adapter, 'create').and.callFake(function(b,c) {
+        spyOn(Channel.adapter(), 'create').and.callFake(function(b,c) {
           adapterOptions = b; adapterCallback = c;
         });
 
@@ -286,7 +281,7 @@ describe('Relation', function() {
       });
 
       it('should send the create to the adapter with the translated values', function() {
-        expect(relation.adapter.create).toHaveBeenCalled();
+        expect(Channel.adapter().create).toHaveBeenCalled();
         expect(adapterOptions).toEqual({_id: 556, n: 'Name value'});
       });
 
@@ -330,7 +325,7 @@ describe('Relation', function() {
         success = error = false;
 
         adapterFinder = adapterOptions = adapterCallback = null;
-        spyOn(relation.adapter, 'update').and.callFake(function(a,b,c) {
+        spyOn(Channel.adapter(), 'update').and.callFake(function(a,b,c) {
           adapterFinder = a; adapterOptions = b; adapterCallback = c;
         });
 
@@ -358,7 +353,7 @@ describe('Relation', function() {
       });
 
       it('should update all records', function() {
-        expect(relation.adapter.update).toHaveBeenCalled();
+        expect(Channel.adapter().update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({});
         expect(adapterOptions).toEqual({n: 'Name value'});
       });
@@ -402,7 +397,7 @@ describe('Relation', function() {
         relation = new Relation(Channel, model);
         adapterFinder = adapterOptions = adapterCallback = null;
 
-        spyOn(relation.adapter, 'update').and.callFake(function(a,b,c) {
+        spyOn(Channel.adapter(), 'update').and.callFake(function(a,b,c) {
           adapterFinder = a; adapterOptions = b; adapterCallback = c;
         });
 
@@ -419,7 +414,7 @@ describe('Relation', function() {
       });
 
       it('should send the update to the adapter', function() {
-        expect(relation.adapter.update).toHaveBeenCalled();
+        expect(Channel.adapter().update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({_id: '556'});
         expect(adapterOptions).toEqual({n: 'Name value'});
       });

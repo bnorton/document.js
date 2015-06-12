@@ -684,7 +684,7 @@ describe(Document.className, function() {
     beforeEach(function() {
       removeOptions = callback = result = null;
 
-      spyOn(Channel.adapter, 'remove').and.callFake(function(b,c) {
+      spyOn(Channel.adapter(), 'remove').and.callFake(function(b,c) {
         removeOptions = b; callback = c;
       });
 
@@ -925,7 +925,7 @@ describe(Document.className, function() {
       beforeEach(function() {
         callback = null;
 
-        spyOn(Channel.adapter, 'first').and.callFake(function(c) {
+        spyOn(Channel.adapter(), 'first').and.callFake(function(c) {
           callback = c;
         });
 
@@ -992,7 +992,7 @@ describe(Document.className, function() {
       beforeEach(function() {
         callback = null;
 
-        spyOn(Channel.adapter, 'last').and.callFake(function(c) {
+        spyOn(Channel.adapter(), 'last').and.callFake(function(c) {
           callback = c;
         });
 
