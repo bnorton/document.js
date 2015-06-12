@@ -3991,6 +3991,9 @@ var extend = require('extend'),
 
 Document = Object.progeny('Document', {
   init: function(options, relation) {
+    this._data = {};
+    this._changes = {};
+
     assignOptions.call(this, options);
 
     this.relation = relation;
@@ -4231,7 +4234,7 @@ function assignOptions(options) {
     this.id = Document.Adapter.ids.next();
   }
 
-  this._data = extend({_id: this.id }, optionsWithout(options, ['id', '_id']));
+  this.set(extend({_id: this.id }, optionsWithout(options, ['id', '_id'])));
   this._changes = {};
 }
 
