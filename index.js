@@ -21,7 +21,7 @@ Adapter = Object.progeny('Adapter', {
 
 exports = module.exports = Adapter;
 
-},{"progenitor.js":17}],2:[function(require,module,exports){
+},{"progenitor.js":15}],2:[function(require,module,exports){
 require('progenitor.js')();
 
 var noop = function() {};
@@ -60,7 +60,7 @@ function makeRSVPCallback() {
 
 exports = module.exports = Count;
 
-},{"progenitor.js":17}],3:[function(require,module,exports){
+},{"progenitor.js":15}],3:[function(require,module,exports){
 var noop = function() {},
   adapters = [],
   extend = require('extend'),
@@ -146,102 +146,7 @@ MemoryAdapter = Adapter.progeny('MemoryAdapter', {
 
 exports = module.exports = MemoryAdapter;
 
-},{"./adapter":1,"base-62.js":6,"extend":9}],4:[function(require,module,exports){
-(function (process){
-var config = require('json.mustache.js'),
-  inflect = require('i')(),
-  objectID = function() { return require('mongodb').ObjectID },
-  Adapter = require('./adapter');
-
-MongoAdapter = Adapter.progeny('MongoAdapter', {
-  collection: function() {
-    if(this._collection) return this._collection;
-
-    var connection = this.class.connection;
-    if(!connection) throw new Error('MongoDB not connected');
-
-    return (this._collection = connection.collection(inflect.tableize(this.modelClass.className)));
-  },
-  create: function(options, callback) {
-    this.collection().insertOne(options, function(err, info) {
-      callback(err ? null : options);
-    });
-  },
-  update: function(options, updates, callback) {
-    var done = function(err, doc) {
-      callback(err ? null : doc);
-    };
-
-    if(options._id) {
-      this.collection().updateOne(options, { $set: updates }, done);
-    } else {
-      this.collection().updateMany(options, { $set: updates }, done);
-    }
-  },
-  count: function(callback) {
-    this.collection().count(function(err, count) {
-      callback(err ? null : count);
-    });
-  },
-  first: function(callback) {
-    this.collection().find({}).limit(1).sort({_id: 1}).toArray(function(err, docs) {
-      callback(err ? null : (docs[0] || null));
-    });
-  },
-  last: function(callback) {
-    this.collection().find({}).limit(1).sort({_id: -1}).toArray(function(err, docs) {
-      callback(err ? null : (docs[0] || null));
-    });
-  },
-  where: function(options, callback) {
-    if(!options) { // TODO test this at the adapter level
-      callback && callback(null);
-      return;
-    }
-
-    this.collection().find(options).toArray(function(err, docs) {
-      callback(err ? null : docs);
-    });
-  },
-  remove: function(options, callback) {
-    this.collection().deleteMany(options, function(err, info) {
-      callback(err ? null : options);
-    });
-  },
-  clear: function(callback) {
-    this.collection().remove({}, callback);
-  }
-}, {
-  classMethods: {
-    connection: null,
-    connect: function(callback) {
-      var that = this,
-        url = process.env.MONGODB_URL || config('mongo').url;
-
-      require('mongodb').MongoClient.connect(url, function(error, database) {
-        if(error) { console.warn('Error connecting to MongoDB error: ', error,  '<---'); throw new Error('DB connect error', error); }
-
-        that.connection = database;
-        callback();
-      });
-    },
-    disconnect: function(callback) {
-      this.connection.close(); callback();
-    },
-    ids: {
-      isValid: function(id) {
-        return objectID().isValid(id);
-      }, next: function(id) {
-        return objectID()(id);
-      }
-    }
-  }
-});
-
-exports = module.exports = MongoAdapter;
-
-}).call(this,require('_process'))
-},{"./adapter":1,"_process":19,"i":11,"json.mustache.js":16,"mongodb":undefined}],5:[function(require,module,exports){
+},{"./adapter":1,"base-62.js":5,"extend":8}],4:[function(require,module,exports){
 RelationError = Error.progeny('RelationError', { init: function(m) { this.name = this.className; this.message = m; } });
 
 var extend = require('extend'),
@@ -388,7 +293,7 @@ function makeRSVPCallback() {
 
 exports = module.exports = Relation;
 
-},{"extend":9}],6:[function(require,module,exports){
+},{"extend":8}],5:[function(require,module,exports){
 (function (global){
 /*!
  * base-62.js (c) 2015 Brian Norton
@@ -1771,7 +1676,7 @@ exports = module.exports = Base62;
 },{"big.js":1,"random.js":2}]},{},[3])(3)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"big.js":7,"random.js":8}],7:[function(require,module,exports){
+},{"big.js":6,"random.js":7}],6:[function(require,module,exports){
 /* big.js v3.0.2 https://github.com/MikeMcl/big.js/LICENCE */
 ;(function (global) {
     'use strict';
@@ -2911,7 +2816,7 @@ exports = module.exports = Base62;
     }
 })(this);
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
 * @fn randomInt(options)
 * @brief generate random integers
@@ -3013,7 +2918,7 @@ module.exports.randomInt = randomInt
 module.exports.randomFloat = randomFloat
 module.exports.randomString = randomString
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
 var undefined;
@@ -3104,7 +3009,7 @@ module.exports = function extend() {
 };
 
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 // Default inflections
 module.exports = function (inflect) {
 
@@ -3169,7 +3074,7 @@ module.exports = function (inflect) {
   inflect.uncountable(['equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep', 'jeans']);
 }
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // Requiring modules
 
 module.exports = function (attach) {
@@ -3182,7 +3087,7 @@ module.exports = function (attach) {
   return methods
 };
 
-},{"./methods":13,"./native":14}],12:[function(require,module,exports){
+},{"./methods":12,"./native":13}],11:[function(require,module,exports){
 // A singleton instance of this class is yielded by Inflector.inflections, which can then be used to specify additional
 // inflection rules. Examples:
 //
@@ -3300,7 +3205,7 @@ Inflections.prototype.default = function () {
 
 module.exports = new Inflections();
 
-},{"./defaults":10,"./util":15}],13:[function(require,module,exports){
+},{"./defaults":9,"./util":14}],12:[function(require,module,exports){
 // The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without,
 // and class names to foreign keys. The default inflections for pluralization, singularization, and uncountable words are kept
 // in inflections.coffee
@@ -3535,7 +3440,7 @@ inflect.classify = function (table_name) {
   return inflect.camelize(inflect.singularize(util.string.gsub(table_name, /.*\./, '')));
 }
 
-},{"./inflections":12,"./util":15}],14:[function(require,module,exports){
+},{"./inflections":11,"./util":14}],13:[function(require,module,exports){
 module.exports = function (obj) {
 
   var addProperty = function (method, func) {
@@ -3563,7 +3468,7 @@ module.exports = function (obj) {
 
 }
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 // Some utility functions in js
 
 var u = module.exports = {
@@ -3701,43 +3606,7 @@ var u = module.exports = {
   }
 }
 
-},{}],16:[function(require,module,exports){
-(function (process){
-/*!
- * json.mustache.js (c) 2015 Brian Norton
- * This library may be freely distributed under the MIT license.
- */
-var files = require('fs'),
-  cache = {};
-
-json = function(name, env) {
-  env || (env = process.env.NODE_ENV);
-
-  var cacheKey = name+':'+env;
-
-  if(cache[cacheKey])
-    return cache[cacheKey];
-
-  var string, key, config = JSON.parse(files.readFileSync(process.cwd()+'/config/'+name+'.json'))[env],
-    keys = Object.keys(config);
-
-  for(var i=0; i<keys.length; ++i) {
-    key = keys[i]; string = config[key];
-
-    if(typeof string == 'string') {
-      config[key] = string.replace(/\{\{(\w+)\}\}/g, function(match, group, start) {
-        return config[group] || match;
-      });
-    }
-  }
-
-  return cache[cacheKey] = config;
-};
-
-exports = module.exports = json;
-
-}).call(this,require('_process'))
-},{"_process":19,"fs":18}],17:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 (function (global){
 /*!
  * progenitor.js (c) 2015 Brian Norton
@@ -3891,114 +3760,13 @@ exports = module.exports = function() {
 },{"extend":1}]},{},[2])(2)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"extend":9}],18:[function(require,module,exports){
-
-},{}],19:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = setTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    clearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],20:[function(require,module,exports){
-(function (process){
+},{"extend":8}],16:[function(require,module,exports){
 require('progenitor.js')();
 
 var extend = require('extend'),
   inflect = require('i')(),
   Adapter = require('./memory_adapter'),
   noop = function() { };
-
-console.log('document.js | process.env.NODE_ENV', process.env.NODE_ENV);
-
-if(process.env.NODE_ENV == 'production') {
-  Adapter = require('./mongo_adapter');
-}
 
 Document = Object.progeny('Document', {
   init: function(options, relation) {
@@ -4288,6 +4056,5 @@ extend(Document, {
 
 exports = module.exports = Document;
 
-}).call(this,require('_process'))
-},{"./count":2,"./memory_adapter":3,"./mongo_adapter":4,"./relation":5,"_process":19,"extend":9,"i":11,"progenitor.js":17}]},{},[20])(20)
+},{"./count":2,"./memory_adapter":3,"./relation":4,"extend":8,"i":10,"progenitor.js":15}]},{},[16])(16)
 });
