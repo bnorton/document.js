@@ -141,6 +141,15 @@ describe('Relation', function() {
           expect(models[1].get('name')).toBe('Channel 556');
         });
 
+        it('should have the model status', function() {
+          var models = relation.items;
+
+          expect(models[0].loaded).toBe(true);
+          expect(models[0].persisted).toBe(true);
+          expect(models[1].loaded).toBe(true);
+          expect(models[1].persisted).toBe(true);
+        });
+
         it('should not have the size', function() {
           expect(relation.size).toBeNull();
         });

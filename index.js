@@ -306,9 +306,10 @@ Relation = Object.progeny('Relation', {
       this.adapter.where(options, function(value) {
         if(Array.isArray(value)) {
           value = value.map(function(options) {
-            options = Model.shortToLong(options);
+            var model = new Model({_id: null});
+            model.kept(Model.shortToLong(options));
 
-            return new Model(options);
+            return model;
           });
         }
 
