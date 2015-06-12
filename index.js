@@ -3991,9 +3991,14 @@ require('progenitor.js')();
 
 var extend = require('extend'),
   inflect = require('i')(),
-  localMode = (typeof window !== 'undefined' || !process.env.NODE_ENV || process.env.NODE_ENV === 'test') && process.env.NODE_ENV !== 'production',
-  Adapter = localMode ? require('./memory_adapter') : require('./mongo_adapter'),
+  Adapter = require('./memory_adapter'),
   noop = function() { };
+
+console.log('document.js | process.env.NODE_ENV', process.env.NODE_ENV);
+
+if(process.env.NODE_ENV == 'production') {
+  Adapter = require('./mongo_adapter');
+}
 
 Document = Object.progeny('Document', {
   init: function(options, relation) {
@@ -4278,7 +4283,8 @@ function _translateFields(fields, opts) {
 extend(Document, {
   Relation: require('./relation'),
   Count: require('./count'),
-  Adapter: Adapter
+  Adapter: Adapter,
+  localMode: localMode
 });
 
 exports = module.exports = Document;
