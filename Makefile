@@ -13,5 +13,5 @@ headerify:
 clean:
 	@rm index.js index.min.js
 
-test: build
+test: build headerify
 	@if [ -e ./node_modules/.bin/minijasminenode2 ]; then ./node_modules/.bin/minijasminenode2 --verbose --forceexit **/*_spec.js; else printf "\nMini Jasmine not installed @ ./node_modules/.bin/minijasminenode2...\n\nTrying npm install\n\n" && npm install; fi;
