@@ -1,3 +1,7 @@
+/*!
+ * document.js (c) 2015 Brian Norton
+ * This library may be freely distributed under the MIT license.
+ */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.model = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('progenitor.js')();
 
@@ -289,7 +293,7 @@ Relation = Object.progeny('Relation', {
       this.adapter.where({_id: this.model.id}, function(value) {
         that.loaded = true;
 
-        value = Array.isArray(value) ? shortToLong.call(that.model.class, value[0]) : value;
+        value = Array.isArray(value) ? that.model.class.shortToLong(value[0]) : value;
 
         that.model.kept(value);
       });
@@ -297,12 +301,12 @@ Relation = Object.progeny('Relation', {
       return this.model;
     } else {
       var Model = this.modelClass;
-      options = longToShort.call(Model, options);
+      options = Model.longToShort(options);
 
       this.adapter.where(options, function(value) {
         if(Array.isArray(value)) {
           value = value.map(function(options) {
-            options = shortToLong.call(Model, options);
+            options = Model.shortToLong(options);
 
             return new Model(options);
           });
@@ -330,12 +334,12 @@ Relation = Object.progeny('Relation', {
 
     if(!this.model) throw new RelationError('Non-model creates are not supported.');
 
-    options = longToShort.call(this.modelClass, options);
+    options = this.modelClass.longToShort(options);
 
     this.adapter.create(options, function(value) {
       that.loaded = true;
 
-      value = shortToLong.call(that.model.class, value);
+      value = that.model.class.shortToLong(value);
 
       that.model.kept(value);
     });
@@ -345,7 +349,7 @@ Relation = Object.progeny('Relation', {
   update: function(options) { var that = this;
     this.loaded = false;
 
-    options = longToShort.call(this.modelClass, options);
+    options = this.modelClass.longToShort(options);
 
     if(this.model) {
       this.adapter.update({_id: this.model.id}, options, function(value) {
@@ -375,22 +379,6 @@ function makeRSVPCallback() {
     else this.RSVP.success.call(this, this.RSVP.wasKept);
   }
 }
-
-function _translateFields(fields, opts) {
-  if(!opts || typeof opts !== 'object')
-    return opts;
-
-  var options = {};
-
-  Object.keys(opts).forEach(function(key) {
-    options[fields[key] || key] = opts[key];
-  });
-
-  return options;
-}
-
-function longToShort(opts) { return _translateFields.call(this, this.namedFields, opts); }
-function shortToLong(opts) { return _translateFields.call(this, this.shortFields, opts); }
 
 exports = module.exports = Relation;
 
@@ -4216,7 +4204,9 @@ Document = Object.progeny('Document', {
     },
     count: function() { return new Document.Relation(this).count() },
     first: function() { return adapterDirection.call(this, 'first') },
-    last: function() { return adapterDirection.call(this, 'last') }
+    last: function() { return adapterDirection.call(this, 'last') },
+    shortToLong: function(opts) { return _translateFields.call(this, this.shortFields, opts); },
+    longToShort: function(opts) { return _translateFields.call(this, this.namedFields, opts); }
   }
 });
 
@@ -4246,6 +4236,8 @@ function assignOptions(options) {
 function adapterDirection(name) { // implements .first and .last
   var model = new this({_id: null});
   this.adapter[name].call(this.adapter, function(options) {
+    options = model.class.shortToLong(options);
+
     model.kept(options);
   });
 
@@ -4262,6 +4254,19 @@ function optionsWithout(options, items) {
   }
 
   return other;
+}
+
+function _translateFields(fields, opts) {
+  if(!opts || typeof opts !== 'object')
+    return opts;
+
+  var options = {};
+
+  Object.keys(opts).forEach(function(key) {
+    options[fields[key] || key] = opts[key];
+  });
+
+  return options;
 }
 
 extend(Document, {

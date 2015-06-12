@@ -19,6 +19,9 @@ Inline context by searching for `TODO`
 
 1. Assign a createdAt on create
 1. Assign an updatedAt when saving
+1. Add a `permit` key on the class that specifies a hash
+ - permit.update = list of fields that can be updated
+ - permit.show = list of fields that can be presented back as JSON
 
 #Relation
 
@@ -26,8 +29,8 @@ Inline context by searching for `TODO`
 
 #Persistence
 
-1. Allow the default mapped (short) field names to be modified.
-1. Store / translate the short for the semantic long values
- - name stored a n
- - createdAt stored at cT
+1. Allow the default mapped (short) field names to be modified. [Done in 1.2.0]
+1. Store / translate the short for the semantic long values [Done in 1.2.0]
+ - name stored a n [Done in 1.2.0]
+ - createdAt stored at cT [Done in 1.2.0]
 

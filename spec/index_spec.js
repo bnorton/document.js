@@ -174,6 +174,11 @@ describe(Document.className, function() {
         expect(model.get('user_id')).toBe(user.id);
       });
 
+      it('should not store the user', function() {
+        expect(model._data.user_id).toBe(user.id);
+        expect(model._data.user).toBeUndefined();
+      });
+
       it('should have the changes', function() {
         expect(model.changedAttributes()).toEqual({user_id: [null, user.id]});
       });
