@@ -147,6 +147,7 @@ MemoryAdapter = Adapter.progeny('MemoryAdapter', {
 exports = module.exports = MemoryAdapter;
 
 },{"./adapter":1,"base-62.js":6,"extend":9}],4:[function(require,module,exports){
+(function (process){
 var config = require('json.mustache.js'),
   inflect = require('i')(),
   objectID = function() { return require('mongodb').ObjectID },
@@ -213,8 +214,11 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
 }, {
   classMethods: {
     connection: null,
-    connect: function(callback) { var that = this;
-      require('mongodb').MongoClient.connect(config('mongo').url, function(error, database) {
+    connect: function(callback) {
+      var that = this,
+        url = process.env.MONGODB_URL || config('mongo').url;
+
+      require('mongodb').MongoClient.connect(url, function(error, database) {
         if(error) { console.warn('Error connecting to MongoDB error: ', error,  '<---'); throw new Error('DB connect error', error); }
 
         that.connection = database;
@@ -236,7 +240,8 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
 
 exports = module.exports = MongoAdapter;
 
-},{"./adapter":1,"i":11,"json.mustache.js":16,"mongodb":undefined}],5:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./adapter":1,"_process":19,"i":11,"json.mustache.js":16,"mongodb":undefined}],5:[function(require,module,exports){
 RelationError = Error.progeny('RelationError', { init: function(m) { this.name = this.className; this.message = m; } });
 
 var extend = require('extend'),
@@ -3986,7 +3991,7 @@ require('progenitor.js')();
 
 var extend = require('extend'),
   inflect = require('i')(),
-  localMode = typeof window !== 'undefined' || !process.env.NODE_ENV || process.env.NODE_ENV === 'test',
+  localMode = (typeof window !== 'undefined' || !process.env.NODE_ENV || process.env.NODE_ENV === 'test') && process.env.NODE_ENV !== 'production',
   Adapter = localMode ? require('./memory_adapter') : require('./mongo_adapter'),
   noop = function() { };
 
