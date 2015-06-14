@@ -17,8 +17,8 @@ Inline context by searching for `TODO`
  - store the un-persisted state of a model as `persisted=false` [Done in 0.9.5]
  - update to `true` when the save succeeds [Done in 0.9.5]
 
-1. Assign a createdAt on create
-1. Assign an updatedAt when saving
+1. Assign a createdAt on create [Done in 1.4.3]
+1. Assign an updatedAt when saving [Done in 1.4.3]
 1. Add a `permit` key on the class that specifies a hash
  - permit.update = list of fields that can be updated
  - permit.show = list of fields that can be presented back as JSON
