@@ -282,7 +282,13 @@ describe('Relation', function() {
 
       it('should send the create to the adapter with the translated values', function() {
         expect(Channel.adapter().create).toHaveBeenCalled();
-        expect(adapterOptions).toEqual({_id: 556, n: 'Name value'});
+
+        expect(adapterOptions._id).toBe(556);
+        expect(adapterOptions.n).toBe('Name value');
+        expectToBeNow(adapterOptions.cT);
+        expectToBeNow(adapterOptions.uT);
+
+        expect(Object.keys(adapterOptions).length).toBe(4);
       });
 
       describe('when the adapter succeeds', function() {
@@ -355,7 +361,11 @@ describe('Relation', function() {
       it('should update all records', function() {
         expect(Channel.adapter().update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({});
-        expect(adapterOptions).toEqual({n: 'Name value'});
+
+        expect(adapterOptions.n).toBe('Name value');
+        expectToBeNow(adapterOptions.uT);
+
+        expect(Object.keys(adapterOptions).length).toBe(2);
       });
 
       describe('when the adapter succeeds', function() {
@@ -416,7 +426,11 @@ describe('Relation', function() {
       it('should send the update to the adapter', function() {
         expect(Channel.adapter().update).toHaveBeenCalled();
         expect(adapterFinder).toEqual({_id: '556'});
-        expect(adapterOptions).toEqual({n: 'Name value'});
+
+        expect(adapterOptions.n).toEqual('Name value');
+        expectToBeNow(adapterOptions.uT);
+
+        expect(Object.keys(adapterOptions).length).toBe(2);
       });
 
       describe('when the adapter succeeds', function() {

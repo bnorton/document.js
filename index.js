@@ -336,6 +336,7 @@ Relation = Object.progeny('Relation', {
 
     if(!this.model) throw new RelationError('Non-model creates are not supported.');
 
+    options = extend(options, { createdAt: new Date(), updatedAt: new Date() });
     options = this.modelClass.longToShort(options);
 
     this.modelClass.adapter().create(options, function(value) {
@@ -351,6 +352,7 @@ Relation = Object.progeny('Relation', {
   update: function(options) { var that = this;
     this.loaded = false;
 
+    options = extend(options, { updatedAt: new Date() });
     options = this.modelClass.longToShort(options);
 
     if(this.model) {

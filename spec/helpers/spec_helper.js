@@ -3,6 +3,8 @@
   global._specHelper = true;
   global.Document = require('../../lib/index')();
 
+  require('./matchers');
+
   beforeEach(function() {
   });
 
