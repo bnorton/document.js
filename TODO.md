@@ -13,7 +13,7 @@ Inline context by searching for `TODO`
  - specify the relationship
  - lookup the relation when getting the hasMany key
 
-1. Assign an ID for models without one
+1. Assign an ID for models without one [Done in 1.0.0]
  - store the un-persisted state of a model as `persisted=false` [Done in 0.9.5]
  - update to `true` when the save succeeds [Done in 0.9.5]
 
