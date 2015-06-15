@@ -2,8 +2,8 @@ module.exports = function(klass, options, extras) {
   describe(klass.className, function() {
     var Channel = require('../../examples/models/channel');
     var scope, adapter, channelA, channelB, withRecords = function(done) {
-      adapter.create({_id: 123, name: 'Channel A', buffered: 400}, function(r) {
-        channelA = r; adapter.create({_id: 456, name: 'Channel B', buffered: 400}, function(rr) {
+      adapter.create({_id: 123, name: 'Channel A', buffered: 400, list: [20, 40]}, function(r) {
+        channelA = r; adapter.create({_id: 456, name: 'Channel B', buffered: 400, list: [10, 20]}, function(rr) {
           channelB = rr; done();
         });
       });
@@ -206,6 +206,18 @@ module.exports = function(klass, options, extras) {
         it('should have all matches', function(done) {
           adapter.where({buffered: 400}, function(items) {
             expect(items).toEqual([channelA, channelB]); done();
+          });
+        });
+
+        it('should have multiple list matches', function(done) {
+          adapter.where({list: 20}, function(items) {
+            expect(items).toEqual([channelA, channelB]); done();
+          });
+        });
+
+        it('should have list matches', function(done) {
+          adapter.where({list: 10}, function(items) {
+            expect(items).toEqual([channelB]); done();
           });
         });
 
