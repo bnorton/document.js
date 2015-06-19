@@ -11,6 +11,8 @@ Inline context by searching for `TODO`
  - specify a relationship [Done in 0.9.3]
  - set the foreign key when passed a model [Done in 0.9.3]
  - lookup the model when getting the belongsTo key [Done in 0.9.3]
+ - Embed a full document in a a JSON response [Done in 1.4.7]
+ - Embed a full document (from the mongo adapter) in a a JSON response
 
 1. hasMany
  - specify the relationship
