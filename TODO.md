@@ -2,6 +2,9 @@
 
 Inline context by searching for `TODO`
 
+#Bugs
+1. On JSON encoding a model, if a value is 0, null is returned
+
 #Document
 
 1. belongsTo
@@ -23,6 +26,8 @@ Inline context by searching for `TODO`
  - permit.update = list of fields that can be updated
  - permit.show = list of fields that can be presented back as JSON
 
+1. Document#attributes to return the current data keys and values
+
 #Relation
 
 1.
@@ -33,4 +38,7 @@ Inline context by searching for `TODO`
 1. Store / translate the short for the semantic long values [Done in 1.2.0]
  - name stored a n [Done in 1.2.0]
  - createdAt stored at cT [Done in 1.2.0]
-
+1. when assigning values, convert and store the value as per the spec.
+ - Assigning a '3' to an Integer field would store 3
+ - Assigning a '3' to an Number field would store 3.0
+ - Assigning '553a4177626e6ffa49540000' to an ObjectID field would store ObjectID('553a4177626e6ffa49540000')
