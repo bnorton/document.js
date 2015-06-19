@@ -10,9 +10,12 @@
 $ npm install document.js
 ```
 
+
 ###Require it
 ```javascript
-var Document = require('document.js');
+var store = decidingFactor ? 'mongo' : 'memory';
+
+Document = require('document.js/lib/index')({store: store});
 ```
 
 ###Use it
