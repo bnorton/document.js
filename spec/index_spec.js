@@ -390,11 +390,11 @@ describe(Document.className, function() {
 
   describe('#asJSON', function() {
     it('should be the allowed fields', function() {
-      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'user', 'slug', 'token', 'buffered']);
+      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'user_id', 'user', 'slug', 'token', 'buffered']);
     });
 
     it('should have the values', function() {
-      expect(model.asJSON()).toEqual({id: '123', createdAt: null, updatedAt: null, name: 'Channel 123', user: { id: null }, slug: '#foo-bars', token: null, buffered: 200})
+      expect(model.asJSON()).toEqual({id: '123', createdAt: null, updatedAt: null, name: 'Channel 123', user_id: null, user: { id: null }, slug: '#foo-bars', token: null, buffered: 200})
     });
 
     it('should convert object ids', function() {
