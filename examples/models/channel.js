@@ -1,4 +1,4 @@
-Channel = Document.progeny('Channel', {
+var Channel = Document.progeny('Channel', {
   displayName: function() {
     return 'Channel: '+this.get('name');
   }

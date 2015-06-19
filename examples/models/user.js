@@ -1,4 +1,4 @@
-User = Document.progeny('User', {
+var User = Document.progeny('User', {
   name: function() {
     var first = this.get('firstName'),
       last = this.get('lastName');

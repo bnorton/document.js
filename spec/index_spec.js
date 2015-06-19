@@ -35,9 +35,9 @@ describe(Document.className, function() {
 
   it('allows modification of the default fields', function() {
     Document.defaultFields.Date.createdAt = 'cr_at';
-    var Post = require('../examples/models/post');
+    var Obscure = require('../examples/models/obscure');
 
-    expect(Post.fields.Date.createdAt).toBe('cr_at');
+    expect(Obscure.fields.Date.createdAt).toBe('cr_at');
   });
 
   describe('.new', function() {
@@ -393,25 +393,66 @@ describe(Document.className, function() {
   });
 
   describe('#asJSON', function() {
+    var id;
+
+    beforeEach(function() {
+      id = Document.Adapter.ids.next();
+    });
+
     it('should be the allowed fields', function() {
-      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'user_id', 'user', 'slug', 'token', 'buffered']);
+      expect(Object.keys(model.asJSON())).toEqual(['id', 'createdAt', 'updatedAt', 'name', 'user', 'user_id', 'slug', 'token', 'buffered']);
     });
 
     it('should have the values', function() {
       expect(model.asJSON()).toEqual({id: '123', createdAt: null, updatedAt: null, name: 'Channel 123', user_id: null, user: { id: null }, slug: '#foo-bars', token: null, buffered: 200})
     });
 
-    it('should convert object ids', function() {
-      model.id = Document.Adapter.ids.next();
-
-      expect(model.asJSON().id).toBe(model.id.toString());
+    it('should convert the id', function() {
+      model.id = id;
+      expect(model.asJSON().id).toBe(id.toString());
     });
 
-    it('should convert object ids', function() {
-      var id = Document.Adapter.ids.next();
-      model.set('user_id', id);
+    describe('for the *_id fields', function() {
+      var json;
 
-      expect(model.asJSON().user.id).toBe(id.toString());
+      beforeEach(function() {
+        model.set('user_id', id);
+
+        json = model.asJSON();
+      });
+
+      it('should have the user id', function() {
+        expect(json.user_id).toBe(id.toString());
+      });
+
+      it('should have the embedded user', function() {
+        expect(Object.keys(json.user).length).toBe(1);
+        expect(json.user.id).toBe(id.toString());
+      });
+    });
+
+    describe('when a document specifies a belongs to relation', function() {
+      var user, json, Post = require('../examples/models/post');
+
+      beforeEach(function() {
+        user = createUser();
+
+        model = new Post({user: user});
+
+        expect(Post.allow.indexOf('user_id')).toBe(1);
+        expect(Post.allow.indexOf('user')).toBe(0); // Order matters
+
+        json = model.asJSON();
+      });
+
+      it('should include the user id (the default of allow: [user_id])', function() {
+        expect(json.user_id).toBe(user.id.toString());
+      });
+
+      it('should include the expanded user', function() {
+        expect(Object.keys(json.user).length).toBeGreaterThan(3);
+        expect(json.user).toEqual(user.asJSON());
+      });
     });
   });
 
