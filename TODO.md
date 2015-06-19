@@ -27,6 +27,8 @@ Inline context by searching for `TODO`
  - permit.show = list of fields that can be presented back as JSON
 
 1. Document#attributes to return the current data keys and values
+1. Warn when a field alias collides with another
+ - suggest another option
 
 #Relation
 
