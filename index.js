@@ -120,6 +120,8 @@ Document = Object.progeny('Document', {
       return id && Document[inflect.classify(name)].find(id);
     } else if(this.class.namedFields[name]) {
       return this._data[name] || null;
+    } else if(typeof this[name] === 'function') {
+      return this[name].call(this);
     }
   },
   set: function() { var name, from, to, options = arguments[0],

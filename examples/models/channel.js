@@ -1,4 +1,7 @@
 Channel = Document.progeny('Channel', {
+  displayName: function() {
+    return 'Channel: '+this.get('name');
+  }
 }, {
   classMethods: {
     fields: {

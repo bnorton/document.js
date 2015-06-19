@@ -304,6 +304,10 @@ describe(Document.className, function() {
       expect(model.get('buffered')).toBe(200);
     });
 
+    it('should return computed values', function() {
+      expect(model.get('displayName')).toBe('Channel: Channel 123');
+    });
+
     it('should not have missing keys', function() {
       expect(model.get('missing')).toBeUndefined();
     });
