@@ -332,6 +332,20 @@ describe(Document.className, function() {
       it('should be null', function() {
         expect(model.get('name')).toBeNull();
       });
+
+      it('should be null', function() {
+        expect(model._data.name).toBeNull();
+      });
+    });
+
+    describe('when setting 0', function() {
+      beforeEach(function() {
+        model.set('name', 0);
+      });
+
+      it('should be the value', function() {
+        expect(model.get('name')).toBe(0);
+      });
     });
 
     describe('when given attributes not on the whitelist', function() {
