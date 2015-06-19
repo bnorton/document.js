@@ -1,10 +1,10 @@
 all: build minify headerify
 
 build:
-	@browserify lib/index.js --standalone model --exclude mongodb > index.js
+	node_modules/browserify/bin/cmd.js lib/index.js --standalone model --exclude mongodb > index.js
 
 minify:
-	@uglifyjs index.js --compress --mangle --stats --output index.min.js
+	node_modules/uglify-js/bin/uglifyjs index.js --compress --mangle --stats --output index.min.js
 
 headerify:
 	@cat ./lib/header.js
