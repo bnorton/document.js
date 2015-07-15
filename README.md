@@ -1,7 +1,8 @@
 # document.js
 
 [![Circle CI](https://circleci.com/gh/bnorton/document.js.svg?style=svg)](https://circleci.com/gh/bnorton/document.js)  
-[![npm version](https://badge.fury.io/js/document.js.svg)](http://badge.fury.io/js/document.js)
+[![npm version](https://badge.fury.io/js/document.js.svg)](http://badge.fury.io/js/document.js)  
+[![Code Climate](https://codeclimate.com/github/bnorton/document.js/badges/gpa.svg)](https://codeclimate.com/github/bnorton/document.js)  
 
 #Getting started
 
