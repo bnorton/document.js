@@ -720,6 +720,144 @@ exports = module.exports = Relation;
  * This library may be freely distributed under the MIT license.
  */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.base62 = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Big = require('big.js'),
+  generate = require('random.js').randomInt,
+  characterSet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+var Base62 = {
+  encode: function(integer) { var original = integer;
+    integer = integer.toString();
+
+    try {
+      Big(integer)
+    } catch(e) {
+      console.log('Big init error on ', original, integer);
+    }
+
+    var bigInt = Big(integer), result = '';
+    if (integer == '0') { return '0'; }
+
+    while (bigInt.gt(0)) {
+      result = characterSet[bigInt.mod(62).toFixed()] + result;
+      bigInt = Big(bigInt.div(62).toFixed(2).split('.')[0]); // Math.floor() aka round down
+    }
+
+    return result;
+  },
+  decode: function(base62String) {
+    base62String = base62String.toString();
+
+    var result = Big(0), big62 = Big(62),
+      characters = base62String.split('').reverse();
+
+    characters.forEach(function(character, index) {
+      result = result.plus(big62.pow(index).times(characterSet.indexOf(character)));
+    });
+
+    return result.toFixed();
+  },
+  encodeHex: function(hexString) {
+    return Base62.encode(hexToInt(hexString.toString()))
+  },
+  decodeHex: function(base62String) {
+    return intToHex(Base62.decode(base62String));
+  },
+  short: function(id) {
+    return id ? Base62.encodeHex(id) : null;
+  },
+  id: function(short) {
+    return short ? Base62.decodeHex(short) : null;
+  },
+  token: function() {
+    return random()+random()+random()+random()+random();
+  }
+};
+
+function random() {
+  return Base62.encode(generate());
+}
+
+function intToHex(decStr) {
+  var hex = convertBase(decStr, 10, 16);
+  return hex ? hex : null;
+}
+
+function hexToInt(hexStr) {
+  return convertBase(hexStr.toString().toLowerCase(), 16, 10);
+}
+
+// START These methods are provided thanks to http://www.danvk.org/hex2dec.html
+//
+function add(x, y, base) {
+  var z = [];
+  var n = Math.max(x.length, y.length);
+  var carry = 0;
+  var i = 0;
+  while (i < n || carry) {
+    var xi = i < x.length ? x[i] : 0;
+    var yi = i < y.length ? y[i] : 0;
+    var zi = carry + xi + yi;
+    z.push(zi % base);
+    carry = Math.floor(zi / base);
+    i++;
+  }
+  return z;
+}
+
+function multiplyByNumber(num, x, base) {
+  if (num < 0) return null;
+  if (num == 0) return [];
+
+  var result = [];
+  var power = x;
+  while (true) {
+    if (num & 1) {
+      result = add(result, power, base);
+    }
+    num = num >> 1;
+    if (num === 0) break;
+    power = add(power, power, base);
+  }
+
+  return result;
+}
+
+function parseToDigitsArray(str, base) {
+  var digits = str.split('');
+  var ary = [];
+  for (var i = digits.length - 1; i >= 0; i--) {
+    var n = parseInt(digits[i], base);
+    if (isNaN(n)) return null;
+    ary.push(n);
+  }
+  return ary;
+}
+
+function convertBase(str, fromBase, toBase) {
+  var digits = parseToDigitsArray(str, fromBase);
+  if (digits === null) return null;
+
+  var outArray = [];
+  var power = [1];
+  for (var i = 0; i < digits.length; i++) {
+    if (digits[i]) {
+      outArray = add(outArray, multiplyByNumber(digits[i], power, toBase), toBase);
+    }
+    power = multiplyByNumber(fromBase, power, toBase);
+  }
+
+  var out = '';
+  for (var i = outArray.length - 1; i >= 0; i--) {
+    out += outArray[i].toString(toBase);
+  }
+  return out;
+}
+//
+// END These methods are provided thanks to http://www.danvk.org/hex2dec.html
+
+module.exports = Base62;
+
+},{"big.js":2,"random.js":3}],2:[function(require,module,exports){
 /* big.js v3.0.2 https://github.com/MikeMcl/big.js/LICENCE */
 ;(function (global) {
     'use strict';
@@ -1859,7 +1997,7 @@ exports = module.exports = Relation;
     }
 })(this);
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /*!
 * @fn randomInt(options)
 * @brief generate random integers
@@ -1961,148 +2099,16 @@ module.exports.randomInt = randomInt
 module.exports.randomFloat = randomFloat
 module.exports.randomString = randomString
 
-},{}],3:[function(require,module,exports){
-var Big = require('big.js'),
-  generate = require('random.js').randomInt,
-  characterSet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-Base62 = {
-  encode: function(integer) { var original = integer;
-    integer = integer.toString();
-
-    try {
-      Big(integer)
-    } catch(e) {
-      console.log('Big init error on ', original, integer);
-    }
-
-    var bigInt = Big(integer), result = '';
-    if (integer == '0') { return '0'; }
-
-    while (bigInt.gt(0)) {
-      result = characterSet[bigInt.mod(62).toFixed()] + result;
-      bigInt = Big(bigInt.div(62).toFixed(2).split('.')[0]); // Math.floor() aka round down
-    }
-
-    return result;
-  },
-  decode: function(base62String) {
-    base62String = base62String.toString();
-
-    var result = Big(0), big62 = Big(62),
-      characters = base62String.split('').reverse();
-
-    characters.forEach(function(character, index) {
-      result = result.plus(big62.pow(index).times(characterSet.indexOf(character)));
-    });
-
-    return result.toFixed();
-  },
-  encodeHex: function(hexString) {
-    return Base62.encode(hexToInt(hexString.toString()))
-  },
-  decodeHex: function(base62String) {
-    return intToHex(Base62.decode(base62String));
-  },
-  token: function() {
-    return random()+random()+random()+random()+random();
-  }
-};
-
-function random() {
-  return Base62.encode(generate());
-}
-
-function intToHex(decStr) {
-  var hex = convertBase(decStr, 10, 16);
-  return hex ? hex : null;
-}
-
-function hexToInt(hexStr) {
-  return convertBase(hexStr.toString().toLowerCase(), 16, 10);
-}
-
-// START These methods are provided thanks to http://www.danvk.org/hex2dec.html
-//
-function add(x, y, base) {
-  var z = [];
-  var n = Math.max(x.length, y.length);
-  var carry = 0;
-  var i = 0;
-  while (i < n || carry) {
-    var xi = i < x.length ? x[i] : 0;
-    var yi = i < y.length ? y[i] : 0;
-    var zi = carry + xi + yi;
-    z.push(zi % base);
-    carry = Math.floor(zi / base);
-    i++;
-  }
-  return z;
-}
-
-function multiplyByNumber(num, x, base) {
-  if (num < 0) return null;
-  if (num == 0) return [];
-
-  var result = [];
-  var power = x;
-  while (true) {
-    if (num & 1) {
-      result = add(result, power, base);
-    }
-    num = num >> 1;
-    if (num === 0) break;
-    power = add(power, power, base);
-  }
-
-  return result;
-}
-
-function parseToDigitsArray(str, base) {
-  var digits = str.split('');
-  var ary = [];
-  for (var i = digits.length - 1; i >= 0; i--) {
-    var n = parseInt(digits[i], base);
-    if (isNaN(n)) return null;
-    ary.push(n);
-  }
-  return ary;
-}
-
-function convertBase(str, fromBase, toBase) {
-  var digits = parseToDigitsArray(str, fromBase);
-  if (digits === null) return null;
-
-  var outArray = [];
-  var power = [1];
-  for (var i = 0; i < digits.length; i++) {
-    if (digits[i]) {
-      outArray = add(outArray, multiplyByNumber(digits[i], power, toBase), toBase);
-    }
-    power = multiplyByNumber(fromBase, power, toBase);
-  }
-
-  var out = '';
-  for (var i = outArray.length - 1; i >= 0; i--) {
-    out += outArray[i].toString(toBase);
-  }
-  return out;
-}
-//
-// END These methods are provided thanks to http://www.danvk.org/hex2dec.html
-
-exports = module.exports = Base62;
-
-},{"big.js":1,"random.js":2}]},{},[3])(3)
+},{}]},{},[1])(1)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"big.js":8,"random.js":9}],8:[function(require,module,exports){
-/* big.js v3.0.2 https://github.com/MikeMcl/big.js/LICENCE */
+/* big.js v3.1.3 https://github.com/MikeMcl/big.js/LICENCE */
 ;(function (global) {
     'use strict';
 
 /*
-  big.js v3.0.2
+  big.js v3.1.3
   A small, fast, easy-to-use library for arbitrary-precision decimal arithmetic.
   https://github.com/MikeMcl/big.js/
   Copyright (c) 2014 Michael Mclaughlin <M8ch88l@gmail.com>
@@ -2141,7 +2147,7 @@ exports = module.exports = Base62;
          * JavaScript's Number type: -7
          * -1000000 is the minimum recommended exponent value of a Big.
          */
-        TO_EXP_NEG = -7,                   // 0 to -1000000
+        E_NEG = -7,                   // 0 to -1000000
 
         /*
          * The exponent value at and above which toString returns exponential
@@ -2150,7 +2156,7 @@ exports = module.exports = Base62;
          * 1000000 is the maximum recommended exponent value of a Big.
          * (This limit is not enforced or checked.)
          */
-        TO_EXP_POS = 21,                   // 0 to 1000000
+        E_POS = 21,                   // 0 to 1000000
 
 /******************************************************************************/
 
@@ -2199,6 +2205,8 @@ exports = module.exports = Base62;
         Big.prototype = P;
         Big.DP = DP;
         Big.RM = RM;
+        Big.E_NEG = E_NEG;
+        Big.E_POS = E_POS;
 
         return Big;
     }
@@ -2251,7 +2259,7 @@ exports = module.exports = Base62;
          * necessary to represent the integer part of the value in normal
          * notation.
          */
-        return toE === 1 || toE && (dp <= i || i <= TO_EXP_NEG) ?
+        return toE === 1 || toE && (dp <= i || i <= Big.E_NEG) ?
 
           // Exponential notation.
           (x.s < 0 && c[0] ? '-' : '') +
@@ -3085,17 +3093,18 @@ exports = module.exports = Base62;
     /*
      * Return a string representing the value of this Big.
      * Return exponential notation if this Big has a positive exponent equal to
-     * or greater than TO_EXP_POS, or a negative exponent equal to or less than
-     * TO_EXP_NEG.
+     * or greater than Big.E_POS, or a negative exponent equal to or less than
+     * Big.E_NEG.
      */
     P.toString = P.valueOf = P.toJSON = function () {
         var x = this,
+            Big = x.constructor,
             e = x.e,
             str = x.c.join(''),
             strL = str.length;
 
         // Exponential notation?
-        if (e <= TO_EXP_NEG || e >= TO_EXP_POS) {
+        if (e <= Big.E_NEG || e >= Big.E_POS) {
             str = str.charAt(0) + (strL > 1 ? '.' + str.slice(1) : '') +
               (e < 0 ? 'e' : 'e+') + e;
 
@@ -3166,11 +3175,12 @@ exports = module.exports = Base62;
     P.toFixed = function (dp) {
         var str,
             x = this,
-            neg = TO_EXP_NEG,
-            pos = TO_EXP_POS;
+            Big = x.constructor,
+            neg = Big.E_NEG,
+            pos = Big.E_POS;
 
         // Prevent the possibility of exponential notation.
-        TO_EXP_NEG = -(TO_EXP_POS = 1 / 0);
+        Big.E_NEG = -(Big.E_POS = 1 / 0);
 
         if (dp == null) {
             str = x.toString();
@@ -3184,8 +3194,8 @@ exports = module.exports = Base62;
                 str = '-' + str;
             }
         }
-        TO_EXP_NEG = neg;
-        TO_EXP_POS = pos;
+        Big.E_NEG = neg;
+        Big.E_POS = pos;
 
         if (!str) {
             throwErr('!toFix!');
@@ -3342,14 +3352,103 @@ module.exports.randomString = randomString
 
 },{}],11:[function(require,module,exports){
 // shim for using process in browser
-
 var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
@@ -3365,7 +3464,7 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    var timeout = runTimeout(cleanUpNextTick);
     draining = true;
 
     var len = queue.length;
@@ -3373,14 +3472,16 @@ function drainQueue() {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
         queueIndex = -1;
         len = queue.length;
     }
     currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
+    runClearTimeout(timeout);
 }
 
 process.nextTick = function (fun) {
@@ -3392,7 +3493,7 @@ process.nextTick = function (fun) {
     }
     queue.push(new Item(fun, args));
     if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
+        runTimeout(drainQueue);
     }
 };
 
@@ -3425,7 +3526,6 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
@@ -3433,9 +3533,10 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],12:[function(require,module,exports){
+'use strict';
+
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
-var undefined;
 
 var isArray = function isArray(arr) {
 	if (typeof Array.isArray === 'function') {
@@ -3446,28 +3547,26 @@ var isArray = function isArray(arr) {
 };
 
 var isPlainObject = function isPlainObject(obj) {
-	'use strict';
 	if (!obj || toStr.call(obj) !== '[object Object]') {
 		return false;
 	}
 
-	var has_own_constructor = hasOwn.call(obj, 'constructor');
-	var has_is_property_of_method = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
 	// Not own constructor property must be Object
-	if (obj.constructor && !has_own_constructor && !has_is_property_of_method) {
+	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
 		return false;
 	}
 
 	// Own properties are enumerated firstly, so to speed up,
 	// if last one is own, then all properties are own.
 	var key;
-	for (key in obj) {}
+	for (key in obj) {/**/}
 
-	return key === undefined || hasOwn.call(obj, key);
+	return typeof key === 'undefined' || hasOwn.call(obj, key);
 };
 
 module.exports = function extend() {
-	'use strict';
 	var options, name, src, copy, copyIsArray, clone,
 		target = arguments[0],
 		i = 1,
@@ -3494,25 +3593,23 @@ module.exports = function extend() {
 				copy = options[name];
 
 				// Prevent never-ending loop
-				if (target === copy) {
-					continue;
-				}
+				if (target !== copy) {
+					// Recurse if we're merging plain objects or arrays
+					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+						if (copyIsArray) {
+							copyIsArray = false;
+							clone = src && isArray(src) ? src : [];
+						} else {
+							clone = src && isPlainObject(src) ? src : {};
+						}
 
-				// Recurse if we're merging plain objects or arrays
-				if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
-					if (copyIsArray) {
-						copyIsArray = false;
-						clone = src && isArray(src) ? src : [];
-					} else {
-						clone = src && isPlainObject(src) ? src : {};
+						// Never move original objects, clone them
+						target[name] = extend(deep, clone, copy);
+
+					// Don't bring in undefined values
+					} else if (typeof copy !== 'undefined') {
+						target[name] = copy;
 					}
-
-					// Never move original objects, clone them
-					target[name] = extend(deep, clone, copy);
-
-				// Don't bring in undefined values
-				} else if (copy !== undefined) {
-					target[name] = copy;
 				}
 			}
 		}
@@ -3538,7 +3635,7 @@ module.exports = function (inflect) {
   inflect.plural(/([ti])um$/i, '$1a');
   inflect.plural(/([ti])a$/i, '$1a');
   inflect.plural(/sis$/i, 'ses');
-  inflect.plural(/(?:([^f])fe|([lr])f)$/i, '$1ves');
+  inflect.plural(/(?:([^fa])fe|(?:(oa)f)|([lr])f)$/i, '$1ves');
   inflect.plural(/(hive)$/i, '$1s');
   inflect.plural(/([^aeiouy]|qu)y$/i, '$1ies');
   inflect.plural(/(x|ch|ss|sh)$/i, '$1es');
@@ -3549,7 +3646,6 @@ module.exports = function (inflect) {
   inflect.plural(/^(oxen)$/i, '$1');
   inflect.plural(/(quiz)$/i, '$1zes');
 
-
   inflect.singular(/s$/i, '');
   inflect.singular(/(n)ews$/i, '$1ews');
   inflect.singular(/([ti])a$/i, '$1um');
@@ -3558,6 +3654,7 @@ module.exports = function (inflect) {
   inflect.singular(/([^f])ves$/i, '$1fe');
   inflect.singular(/(hive)s$/i, '$1');
   inflect.singular(/(tive)s$/i, '$1');
+  inflect.singular(/(oave)s$/i, 'oaf');
   inflect.singular(/([lr])ves$/i, '$1f');
   inflect.singular(/([^aeiouy]|qu)ies$/i, '$1y');
   inflect.singular(/(s)eries$/i, '$1eries');
@@ -3584,8 +3681,13 @@ module.exports = function (inflect) {
   inflect.irregular('move', 'moves');
   inflect.irregular('cow', 'kine');
   inflect.irregular('zombie', 'zombies');
+  inflect.irregular('oaf', 'oafs', true);
+  inflect.irregular('jefe', 'jefes');
+  inflect.irregular('save', 'saves');
+  inflect.irregular('safe', 'safes');
+  inflect.irregular('fife', 'fifes');
 
-  inflect.uncountable(['equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep', 'jeans']);
+  inflect.uncountable(['equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep', 'jeans', 'sushi']);
 }
 
 },{}],14:[function(require,module,exports){
@@ -3653,20 +3755,24 @@ Inflections.prototype.singular = function (rule, replacement) {
 //
 //     irregular 'octopus', 'octopi'
 //     irregular 'person', 'people'
-Inflections.prototype.irregular =  function (singular, plural) {
+Inflections.prototype.irregular =  function (singular, plural, fullMatchRequired) {
   this.uncountables = util.array.del(this.uncountables, singular);
   this.uncountables = util.array.del(this.uncountables, plural);
+  var prefix = "";
+  if (fullMatchRequired) {
+    prefix = "^";
+  }
   if (singular[0].toUpperCase() == plural[0].toUpperCase()) {
-    this.plural(new RegExp("(" + singular[0] + ")" + singular.slice(1) + "$", "i"), '$1' + plural.slice(1));
-    this.plural(new RegExp("(" + plural[0] + ")" + plural.slice(1) + "$", "i"), '$1' + plural.slice(1));
-    this.singular(new RegExp("(" + plural[0] + ")" + plural.slice(1) + "$", "i"), '$1' + singular.slice(1));
+    this.plural(new RegExp("(" + prefix + singular[0] + ")" + singular.slice(1) + "$", "i"), '$1' + plural.slice(1));
+    this.plural(new RegExp("(" + prefix + plural[0] + ")" + plural.slice(1) + "$", "i"), '$1' + plural.slice(1));
+    this.singular(new RegExp("(" + prefix + plural[0] + ")" + plural.slice(1) + "$", "i"), '$1' + singular.slice(1));
   } else {
-    this.plural(new RegExp("" + (singular[0].toUpperCase()) + singular.slice(1) + "$"), plural[0].toUpperCase() + plural.slice(1));
-    this.plural(new RegExp("" + (singular[0].toLowerCase()) + singular.slice(1) + "$"), plural[0].toLowerCase() + plural.slice(1));
-    this.plural(new RegExp("" + (plural[0].toUpperCase()) + plural.slice(1) + "$"), plural[0].toUpperCase() + plural.slice(1));
-    this.plural(new RegExp("" + (plural[0].toLowerCase()) + plural.slice(1) + "$"), plural[0].toLowerCase() + plural.slice(1));
-    this.singular(new RegExp("" + (plural[0].toUpperCase()) + plural.slice(1) + "$"), singular[0].toUpperCase() + singular.slice(1));
-    this.singular(new RegExp("" + (plural[0].toLowerCase()) + plural.slice(1) + "$"), singular[0].toLowerCase() + singular.slice(1));
+    this.plural(new RegExp(prefix + (singular[0].toUpperCase()) + singular.slice(1) + "$"), plural[0].toUpperCase() + plural.slice(1));
+    this.plural(new RegExp(prefix + (singular[0].toLowerCase()) + singular.slice(1) + "$"), plural[0].toLowerCase() + plural.slice(1));
+    this.plural(new RegExp(prefix + (plural[0].toUpperCase()) + plural.slice(1) + "$"), plural[0].toUpperCase() + plural.slice(1));
+    this.plural(new RegExp(prefix + (plural[0].toLowerCase()) + plural.slice(1) + "$"), plural[0].toLowerCase() + plural.slice(1));
+    this.singular(new RegExp(prefix + (plural[0].toUpperCase()) + plural.slice(1) + "$"), singular[0].toUpperCase() + singular.slice(1));
+    this.singular(new RegExp(prefix + (plural[0].toLowerCase()) + plural.slice(1) + "$"), singular[0].toLowerCase() + singular.slice(1));
   }
 };
 
@@ -3927,7 +4033,6 @@ inflect.humanize = function (lower_case_and_underscored_word) {
 inflect.titleize = function (word) {
   var self;
   self = inflect.humanize(inflect.underscore(word));
-  self = util.string.gsub(self, /[^a-zA-Z:']/, ' ');
   return util.string.capitalize(self);
 };
 
@@ -4158,14 +4263,67 @@ exports = module.exports = json;
 }).call(this,require('_process'))
 },{"_process":11,"fs":10}],20:[function(require,module,exports){
 (function (global){
-/*!
- * progenitor.js (c) 2015 Brian Norton
- * This library may be freely distributed under the MIT license.
- */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.progenitor = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var noop = function() {},
+  extend = require('extend');
+
+var progenitorFactory = exports = module.exports = function(baseClass) {
+  baseClass.classMethods || (baseClass.classMethods = {});
+  baseClass.classMethods.inherited || (baseClass.classMethods.inherited = noop);
+
+  baseClass.instanceMethods || (baseClass.instanceMethods = {});
+  baseClass.instanceMethods.init || (baseClass.instanceMethods.init = noop);
+
+  return function(newClassName, methods, options) { var klass;
+    if(klass = Object.progeny.cache[newClassName]) {
+      return klass;
+    }
+
+    methods = ((typeof methods == 'function') ? methods() : methods) || {};
+    options = ((typeof options == 'function') ? options() : options) || {};
+
+    options.classMethods || (options.classMethods = {});
+
+    klass = function(isDefinition) {
+      if(isDefinition === 'progeny-definition') return;
+
+      baseClass.instanceMethods.init.apply(this, arguments); // instance.super.init
+      instanceMethods.init.apply(this, arguments); // instance.init
+    };
+
+    var callSuperClass = function(name) { return baseClass.classMethods[name] && baseClass.classMethods[name].apply(this, getArgs(arguments));},
+      defaultClassMethods = { class: baseClass, className: newClassName, super: callSuperClass, progeny: progenitorFactory(klass) },
+      classMethods = extend({}, baseClass.classMethods, defaultClassMethods, options.classMethods);
+
+    extend(klass, klass.classMethods = classMethods);
+
+    var callSuperInstance = function(name) { return baseClass.instanceMethods[name] && baseClass.instanceMethods[name].apply(this, getArgs(arguments));},
+      defaultInstanceMethods = { constructor: baseClass, class: klass, className: newClassName, super: callSuperInstance, init: noop },
+      instanceMethods = extend({}, baseClass.instanceMethods, defaultInstanceMethods, methods);
+
+    klass.prototype = new baseClass('progeny-definition');
+
+    extend(klass.prototype, klass.instanceMethods = instanceMethods);
+
+    baseClass.classMethods.inherited.call(baseClass, klass);
+
+    return Object.progeny.cache[newClassName] = klass;
+  }
+};
+
+function getArgs(args) {
+  args = Array.prototype.slice.call(args, 1);
+
+  return Object.prototype.toString.call(args[0]) === '[object Arguments]' ? args[0] : args;
+}
+
+exports = module.exports = progenitorFactory;
+
+},{"extend":2}],2:[function(require,module,exports){
+'use strict';
+
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
-var undefined;
 
 var isArray = function isArray(arr) {
 	if (typeof Array.isArray === 'function') {
@@ -4176,28 +4334,26 @@ var isArray = function isArray(arr) {
 };
 
 var isPlainObject = function isPlainObject(obj) {
-	'use strict';
 	if (!obj || toStr.call(obj) !== '[object Object]') {
 		return false;
 	}
 
-	var has_own_constructor = hasOwn.call(obj, 'constructor');
-	var has_is_property_of_method = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
 	// Not own constructor property must be Object
-	if (obj.constructor && !has_own_constructor && !has_is_property_of_method) {
+	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
 		return false;
 	}
 
 	// Own properties are enumerated firstly, so to speed up,
 	// if last one is own, then all properties are own.
 	var key;
-	for (key in obj) {}
+	for (key in obj) {/**/}
 
-	return key === undefined || hasOwn.call(obj, key);
+	return typeof key === 'undefined' || hasOwn.call(obj, key);
 };
 
 module.exports = function extend() {
-	'use strict';
 	var options, name, src, copy, copyIsArray, clone,
 		target = arguments[0],
 		i = 1,
@@ -4224,25 +4380,23 @@ module.exports = function extend() {
 				copy = options[name];
 
 				// Prevent never-ending loop
-				if (target === copy) {
-					continue;
-				}
+				if (target !== copy) {
+					// Recurse if we're merging plain objects or arrays
+					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+						if (copyIsArray) {
+							copyIsArray = false;
+							clone = src && isArray(src) ? src : [];
+						} else {
+							clone = src && isPlainObject(src) ? src : {};
+						}
 
-				// Recurse if we're merging plain objects or arrays
-				if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
-					if (copyIsArray) {
-						copyIsArray = false;
-						clone = src && isArray(src) ? src : [];
-					} else {
-						clone = src && isPlainObject(src) ? src : {};
+						// Never move original objects, clone them
+						target[name] = extend(deep, clone, copy);
+
+					// Don't bring in undefined values
+					} else if (typeof copy !== 'undefined') {
+						target[name] = copy;
 					}
-
-					// Never move original objects, clone them
-					target[name] = extend(deep, clone, copy);
-
-				// Don't bring in undefined values
-				} else if (copy !== undefined) {
-					target[name] = copy;
 				}
 			}
 		}
@@ -4253,12 +4407,23 @@ module.exports = function extend() {
 };
 
 
-},{}],2:[function(require,module,exports){
-var noop = function() {},
-  extend = require('extend'),
-  progenyCache = {};
+},{}],3:[function(require,module,exports){
+var progenitorFactory = require('./lib/factory');
 
-var progenitorFactory = function(baseClass) {
+exports = module.exports = function() {
+  Object.progeny || (Object.progeny = progenitorFactory(Object));
+  Object.progeny.cache || (Object.progeny.cache = {});
+  Error.progeny || (Error.progeny = progenitorFactory(Error));
+};
+
+},{"./lib/factory":1}]},{},[3])(3)
+});
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./lib/factory":21,"extend":12}],21:[function(require,module,exports){
+var noop = function() {},
+  extend = require('extend');
+
+var progenitorFactory = exports = module.exports = function(baseClass) {
   baseClass.classMethods || (baseClass.classMethods = {});
   baseClass.classMethods.inherited || (baseClass.classMethods.inherited = noop);
 
@@ -4266,7 +4431,7 @@ var progenitorFactory = function(baseClass) {
   baseClass.instanceMethods.init || (baseClass.instanceMethods.init = noop);
 
   return function(newClassName, methods, options) { var klass;
-    if(klass = progenyCache[newClassName]) {
+    if(klass = Object.progeny.cache[newClassName]) {
       return klass;
     }
 
@@ -4276,39 +4441,39 @@ var progenitorFactory = function(baseClass) {
     options.classMethods || (options.classMethods = {});
 
     klass = function(isDefinition) {
-      if(isDefinition === 'prototype-definition') return;
+      if(isDefinition === 'progeny-definition') return;
 
       baseClass.instanceMethods.init.apply(this, arguments); // instance.super.init
       instanceMethods.init.apply(this, arguments); // instance.init
     };
 
-    var callSuperClass = function(name) { return baseClass.classMethods[name] && baseClass.classMethods[name].apply(this, Array.prototype.slice.call(arguments, 1));},
+    var callSuperClass = function(name) { return baseClass.classMethods[name] && baseClass.classMethods[name].apply(this, getArgs(arguments));},
       defaultClassMethods = { class: baseClass, className: newClassName, super: callSuperClass, progeny: progenitorFactory(klass) },
       classMethods = extend({}, baseClass.classMethods, defaultClassMethods, options.classMethods);
 
     extend(klass, klass.classMethods = classMethods);
 
-    var callSuperInstance = function(name) { return baseClass.instanceMethods[name] && baseClass.instanceMethods[name].apply(this, Array.prototype.slice.call(arguments, 1));},
+    var callSuperInstance = function(name) { return baseClass.instanceMethods[name] && baseClass.instanceMethods[name].apply(this, getArgs(arguments));},
       defaultInstanceMethods = { constructor: baseClass, class: klass, className: newClassName, super: callSuperInstance, init: noop },
       instanceMethods = extend({}, baseClass.instanceMethods, defaultInstanceMethods, methods);
 
-    klass.prototype = new baseClass('prototype-definition');
+    klass.prototype = new baseClass('progeny-definition');
 
     extend(klass.prototype, klass.instanceMethods = instanceMethods);
 
-    baseClass.classMethods.inherited.apply(baseClass, [klass]);
+    baseClass.classMethods.inherited.call(baseClass, klass);
 
-    return (progenyCache[newClassName] = klass);
+    return Object.progeny.cache[newClassName] = klass;
   }
 };
 
-exports = module.exports = function() {
-  Object.progeny || (Object.progeny = progenitorFactory(Object));
-  Error.progeny || (Error.progeny = progenitorFactory(Error));
-};
+function getArgs(args) {
+  args = Array.prototype.slice.call(args, 1);
 
-},{"extend":1}]},{},[2])(2)
-});
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+  return Object.prototype.toString.call(args[0]) === '[object Arguments]' ? args[0] : args;
+}
+
+exports = module.exports = progenitorFactory;
+
 },{"extend":12}]},{},[3])(3)
 });

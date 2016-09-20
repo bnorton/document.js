@@ -294,7 +294,7 @@ module.exports = function(klass, options, extras) {
           });
 
           it('should be the same', function() {
-            expect(from).toEqual(to);
+            expect(from.toString()).toBe(to.toString());
           });
         });
 
