@@ -474,7 +474,8 @@ MemoryAdapter = Adapter.progeny('MemoryAdapter', {
 exports = module.exports = MemoryAdapter;
 
 },{"./adapter":1,"base-62.js":7,"extend":12}],5:[function(require,module,exports){
-var config = require('json.mustache.js'),
+var fs = require('fs'),
+  config = require('json.mustache.js/lib/index'),
   inflect = require('i')(),
   objectID = function() { return require('mongodb').ObjectID },
   Adapter = require('./adapter');
@@ -565,7 +566,7 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
 
 exports = module.exports = MongoAdapter;
 
-},{"./adapter":1,"i":14,"json.mustache.js":19,"mongodb":undefined}],6:[function(require,module,exports){
+},{"./adapter":1,"fs":10,"i":14,"json.mustache.js/lib/index":19,"mongodb":undefined}],6:[function(require,module,exports){
 RelationError = Error.progeny('RelationError', { init: function(m) { this.name = this.className; this.message = m; } });
 
 var extend = require('extend'),
@@ -4227,10 +4228,6 @@ var u = module.exports = {
 
 },{}],19:[function(require,module,exports){
 (function (process){
-/*!
- * json.mustache.js (c) 2015 Brian Norton
- * This library may be freely distributed under the MIT license.
- */
 var files = require('fs'),
   cache = {};
 
