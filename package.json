@@ -15,7 +15,6 @@
   "dependencies": {
     "progenitor.js": "1.0.12",
     "extend": "*",
-    "json.mustache.js": "*",
     "base-62.js": "*",
     "i": "*"
   },

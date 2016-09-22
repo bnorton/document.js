@@ -1,6 +1,3 @@
 {
-  "test": {
-    "url": "mongodb://localhost:27017/{{id}}",
-    "id": "document-js"
-  }
+  "test": "mongodb://localhost:27017/document-js"
 }

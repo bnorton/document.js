@@ -19,9 +19,9 @@ Adapter = Object.progeny('Adapter', {
   }
 });
 
-exports = module.exports = Adapter;
+module.exports = Adapter;
 
-},{"progenitor.js":20}],2:[function(require,module,exports){
+},{"progenitor.js":19}],2:[function(require,module,exports){
 require('progenitor.js')();
 
 var noop = function() {};
@@ -58,9 +58,9 @@ function makeRSVPCallback() {
   }
 }
 
-exports = module.exports = Count;
+module.exports = Count;
 
-},{"progenitor.js":20}],3:[function(require,module,exports){
+},{"progenitor.js":19}],3:[function(require,module,exports){
 require('progenitor.js')();
 
 var extend = require('extend'),
@@ -370,7 +370,7 @@ extend(Document, {
   Count: require('./count')
 });
 
-exports = module.exports = function(options) {
+module.exports = function(options) {
   options = (options || {});
   options.store || (options.store = 'memory');
 
@@ -384,7 +384,7 @@ exports = module.exports = function(options) {
   return Document;
 };
 
-},{"./count":2,"./memory_adapter":4,"./mongo_adapter":5,"./relation":6,"extend":12,"i":14,"progenitor.js":20}],4:[function(require,module,exports){
+},{"./count":2,"./memory_adapter":4,"./mongo_adapter":5,"./relation":6,"extend":12,"i":14,"progenitor.js":19}],4:[function(require,module,exports){
 var noop = function() {},
   adapters = [],
   extend = require('extend'),
@@ -471,11 +471,11 @@ MemoryAdapter = Adapter.progeny('MemoryAdapter', {
   }
 });
 
-exports = module.exports = MemoryAdapter;
+module.exports = MemoryAdapter;
 
 },{"./adapter":1,"base-62.js":7,"extend":12}],5:[function(require,module,exports){
+(function (process){
 var fs = require('fs'),
-  config = require('json.mustache.js/lib/index'),
   inflect = require('i')(),
   objectID = function() { return require('mongodb').ObjectID },
   Adapter = require('./adapter');
@@ -542,7 +542,8 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
   classMethods: {
     connection: null,
     connect: function(callback) {
-      var that = this, url = config('mongo').url;
+      var that = this,
+        url = JSON.parse(fs.readFileSync(process.cwd()+'/config/mongo.json'))[process.env.NODE_ENV];
 
       require('mongodb').MongoClient.connect(url, function(error, database) {
         if(error) { console.warn('Error connecting to MongoDB error: ', error,  '<---'); throw new Error('DB connect error', error); }
@@ -564,9 +565,10 @@ MongoAdapter = Adapter.progeny('MongoAdapter', {
   }
 });
 
-exports = module.exports = MongoAdapter;
+module.exports = MongoAdapter;
 
-},{"./adapter":1,"fs":10,"i":14,"json.mustache.js/lib/index":19,"mongodb":undefined}],6:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./adapter":1,"_process":11,"fs":10,"i":14,"mongodb":undefined}],6:[function(require,module,exports){
 RelationError = Error.progeny('RelationError', { init: function(m) { this.name = this.className; this.message = m; } });
 
 var extend = require('extend'),
@@ -712,7 +714,7 @@ function makeRSVPCallback() {
   }
 }
 
-exports = module.exports = Relation;
+module.exports = Relation;
 
 },{"extend":12}],7:[function(require,module,exports){
 (function (global){
@@ -4227,38 +4229,6 @@ var u = module.exports = {
 }
 
 },{}],19:[function(require,module,exports){
-(function (process){
-var files = require('fs'),
-  cache = {};
-
-json = function(name, env) {
-  env || (env = process.env.NODE_ENV);
-
-  var cacheKey = name+':'+env;
-
-  if(cache[cacheKey])
-    return cache[cacheKey];
-
-  var string, key, config = JSON.parse(files.readFileSync(process.cwd()+'/config/'+name+'.json'))[env],
-    keys = Object.keys(config);
-
-  for(var i=0; i<keys.length; ++i) {
-    key = keys[i]; string = config[key];
-
-    if(typeof string == 'string') {
-      config[key] = string.replace(/\{\{(\w+)\}\}/g, function(match, group, start) {
-        return config[group] || match;
-      });
-    }
-  }
-
-  return cache[cacheKey] = config;
-};
-
-exports = module.exports = json;
-
-}).call(this,require('_process'))
-},{"_process":11,"fs":10}],20:[function(require,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.progenitor = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var noop = function() {},
@@ -4416,7 +4386,7 @@ exports = module.exports = function() {
 },{"./lib/factory":1}]},{},[3])(3)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/factory":21,"extend":12}],21:[function(require,module,exports){
+},{"./lib/factory":20,"extend":12}],20:[function(require,module,exports){
 var noop = function() {},
   extend = require('extend');
 
